@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: grind-protocol-postgres
+    environment:
+      POSTGRES_DB: grind_protocol
+      POSTGRES_USER: grind_protocol
+      POSTGRES_PASSWORD: grind_protocol
+    ports:
+      - "5432:5432"
+    volumes:
+      - grind_protocol_pgdata:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: grind-protocol-app
+    depends_on:
+      - postgres
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/grind_protocol
+      SPRING_DATASOURCE_USERNAME: grind_protocol
+      SPRING_DATASOURCE_PASSWORD: grind_protocol
+    ports:
+      - "8080:8080"
+
+volumes:
+  grind_protocol_pgdata:

@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: Grind Protocol
+  profiles:
+    default: dev
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+security:
+  cors:
+    allowed-origins: "http://localhost:4200"
+    allowed-methods: "GET,POST,PUT,PATCH,DELETE,OPTIONS"
+    allowed-headers: "Authorization,Content-Type"
+    allow-credentials: true
+  jwt:
+    issuer: grind-protocol
+    expiration: 900000
+  refresh:
+    expiration-days: 14
+  cookie:
+    refresh-name: refresh_token
+    secure: false
+    same-site: Lax
+    path: /auth
+    max-age-days: 14
+  rate-limit:
+    login:
+      enabled: true
+      max-attempts: 5
+      window-seconds: 60
+    refresh:
+      enabled: true
+      max-attempts: 10
+      window-seconds: 60
+
+logging:
+  level:
+    org.springframework.security: INFO
