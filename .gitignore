@@ -35,3 +35,13 @@ build/
 # Logs
 logs/
 *.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+
+# Maven
+dependency-reduced-pom.xml
