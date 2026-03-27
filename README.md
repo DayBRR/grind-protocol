@@ -36,9 +36,12 @@ aportando infraestructura propia:
 
 ------------------------------------------------------------------------
 
-## 📦 Dependencia principal
+## 🔗 Security Module
 
-Este proyecto consume la librería:
+This project uses:
+
+👉 security-core v0.1.0  
+https://github.com/DayBRR/security-core
 
 ``` xml
 <dependency>
