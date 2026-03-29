@@ -1,0 +1,14 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "packages": {
+    ".": {
+      "release-type": "java",
+      "changelog-path": "CHANGELOG.md",
+      "include-v-in-tag": true,
+      "initial-version": "0.1.0",
+      "bump-minor-pre-major": false,
+      "bump-patch-for-minor-pre-major": true,
+      "skip-snapshot": true
+    }
+  }
+}
