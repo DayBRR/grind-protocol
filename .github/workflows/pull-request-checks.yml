@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout grind-protocol
         uses: actions/checkout@v4
 
       - name: Set up Java 17
@@ -23,5 +23,15 @@ jobs:
           java-version: '17'
           cache: maven
 
-      - name: Verify with Maven
+      - name: Checkout security-core
+        uses: actions/checkout@v4
+        with:
+          repository: DayBRR/security-core
+          path: security-core
+
+      - name: Install security-core locally
+        working-directory: security-core
+        run: mvn clean install -DskipTests
+
+      - name: Verify grind-protocol
         run: mvn clean verify
