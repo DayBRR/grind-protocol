@@ -1,133 +1,191 @@
-# ⚙️ grind-protocol
+# 🎮 Grind Protocol
 
-**grind-protocol** es una aplicación Spring Boot que consume la librería
-`security-core` para validar su reutilización en un entorno real.
+![Release](https://img.shields.io/github/v/release/DayBRR/grind-protocol)
+![Build](https://img.shields.io/github/actions/workflow/status/DayBRR/grind-protocol/release-please.yml)
+![License](https://img.shields.io/badge/license-MIT-blue)
+![Java](https://img.shields.io/badge/Java-17+-orange?logo=openjdk)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen?logo=springboot)
 
-Este proyecto actúa como una **app consumidora independiente**,
-demostrando que el módulo de seguridad puede integrarse de forma limpia
-y desacoplada.
+---
 
-------------------------------------------------------------------------
+## 🧠 What is Grind Protocol?
 
-## 🎯 Objetivo
+**Grind Protocol** is a personal gamification system that transforms your daily tasks into an RPG-style progression system.
 
-Validar el uso de `security-core` fuera de su contexto original,
-aportando infraestructura propia:
+Instead of just completing tasks, you:
 
--   🧩 Entidades JPA\
--   🗃️ Repositorios\
--   🔌 Adapters\
--   ⚙️ Configuración Spring\
--   🧪 Flyway (migraciones)\
--   🐘 Base de datos PostgreSQL
+- ⭐ Earn XP
+- 🔥 Maintain streaks
+- 🆙 Level up
+- 🪙 Earn **Core Points**
+- 🎁 Unlock real-life rewards
 
-------------------------------------------------------------------------
+👉 This is not a to-do app.  
+👉 This is a **discipline engine**.
 
-## 🚀 Tech Stack
+---
 
--   ☕ **Java 17**\
--   🌱 **Spring Boot 3.5.x**\
--   🔐 **Spring Security**\
--   🗄️ **Spring Data JPA**\
--   🐘 **PostgreSQL**\
--   🧪 **Flyway**\
--   📄 **OpenAPI / Swagger**\
--   🐳 **Docker / Docker Compose**
+## 🎯 Core Philosophy
 
-------------------------------------------------------------------------
+- 🛡️ Discipline over motivation
+- 📈 Progress must be visible
+- ⚖️ Effort must be rewarded
+- 💀 Failure must have consequences
+- 🔁 Consistency is king
 
-## 🔗 Security Module
+---
+
+## ⚙️ Core Systems
+
+### 📋 Tasks System
+- Daily / Weekly / One-time / Long-term tasks
+- Mandatory tasks support
+- Controlled difficulty
+- Repeatable tasks with diminishing returns
+
+---
+
+### ⭐ XP & 🆙 Levels
+- XP is earned by completing tasks
+- Levels represent long-term progression
+- Progressive difficulty curve
+
+---
+
+### 🪙 Core Points (Currency)
+- 💱 100 XP = 10 Core Points
+- Used to unlock rewards
+- Separate from XP (no progression loss)
+
+---
+
+### 🎁 Rewards System
+- Custom rewards (user-defined)
+- Predefined templates
+- Cooldowns and limits
+
+Examples:
+- 🎮 Buy a game
+- 📚 Buy a book
+- 🍔 Order food
+- 🎬 Watch a movie
+
+---
+
+### 🔥 Streak System
+- Daily streak based on task completion
+- Broken if daily requirements are not met
+- No free rest days
+
+---
+
+### 💀 Debuffs
+Failing a day can result in:
+
+- XP reduction
+- Currency penalty
+- Temporary restrictions
+
+---
+
+### 🚨 Smart Alerts
+- 🔥 Streak at risk
+- ⏳ Tasks about to expire
+- 🆙 Level almost reached
+- 🪙 Reward unlocked
+
+---
+
+### 🧬 Stats System (Future-ready)
+- Discipline
+- Intelligence
+- Strength
+- Energy
+- Technical Skill
+
+Currently visual → future impact on gameplay
+
+---
+
+## 🔁 Daily Loop
+
+1. Open the app
+2. Complete tasks
+3. Earn XP & Core Points
+4. Maintain streak
+5. Progress towards rewards
+
+---
+
+## 🚀 Roadmap
+
+See full product definition here:
+
+👉 [ROADMAP.md](./ROADMAP.md)
+
+---
+
+## 🧪 Versioning & Releases
 
 This project uses:
 
-👉 security-core v0.1.0  
-https://github.com/DayBRR/security-core
+- 🏷️ **Semantic Versioning**
+- 🤖 **release-please (Google)**
+- 📦 Automated changelog & releases
 
-``` xml
-<dependency>
-  <groupId>com.davidrr</groupId>
-  <artifactId>security-core</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-</dependency>
+### Commit Convention
+
+This project follows **Conventional Commits** to maintain a clear and structured commit history and to enable automated releases.
+
+Commit messages follow this format:
+
+`<type>(optional scope): description`
+
+Examples:
+
+```text
+feat(portfolio): add project filtering
+fix(ui): improve card spacing on mobile
+docs(readme): update project documentation
+refactor(components): simplify project card logic
+chore(ci): update GitHub Actions workflow
 ```
+### Common Commit Types
 
-------------------------------------------------------------------------
+| Type     | Description                                |
+| -------- | ------------------------------------------ |
+| feat     | Introduces a new feature                   |
+| fix      | Fixes a bug                                |
+| docs     | Documentation changes                      |
+| refactor | Code refactoring without changing behavior |
+| chore    | Maintenance tasks                          |
+| ci       | Continuous integration changes             |
 
-## 🧱 Qué aporta este proyecto
+---
 
-Implementa la capa específica del dominio consumidor:
+## 🧱 Tech Stack
 
--   👤 `User`\
--   🔄 `RefreshToken`\
--   📦 `UserRepository`\
--   📦 `RefreshTokenRepository`\
--   🔐 `UserDetailsServiceImpl`\
--   🧠 `JpaRefreshSessionStore`\
--   🔌 `SpringSecurityUserProvider`\
--   ⚙️ Configuración YAML\
--   🧪 Migraciones Flyway
+- ☕ Java 17+
+- 🌱 Spring Boot 3.x
+- 🔐 Modular security (security-core)
+- 🧪 JUnit 5
+- 📄 OpenAPI (Springdoc)
+- 🗄️ H2 / PostgreSQL (future)
 
-------------------------------------------------------------------------
+---
 
-## 🏗️ Estructura del proyecto
+## 📌 Project Status
 
-    src/main/java/com/davidrr/grindprotocol/
-    ├── GrindProtocolApplication.java
-    ├── security/
-    │   └── auth/
-    │       └── controller/
-    ├── user/
-    │   ├── adapter/
-    │   ├── model/
-    │   ├── repository/
-    │   └── service/
+🚧 In active development (MVP phase)
 
-------------------------------------------------------------------------
+---
 
-## 🧩 Git Workflow --- Commit & Branch Conventions
+## 👤 Author
 
-Este proyecto usa **Conventional Commits**.
+**David Ruiz**
 
-### 📌 Tipos de commit
+---
 
-| Type       | Meaning                                            |
-|------------|----------------------------------------------------|
-| **feat**   | Nueva funcionalidad                                |
-| **fix**    | Corrección de bug                                  |
-| **refactor** | Mejora interna                                     |
-| **chore**  | Mantenimiento                                      |
-| **docs**   | Documentación                                      |
-| **style**  | Estilo                                             |
-| **test**   | Incluir o modificar tests                          |
-| **build**  | Construcción cambios del sistema (Maven, plugins…) |
+## 📄 License
 
-
-------------------------------------------------------------------------
-
-### 📌 Formato de commit
-
-    <type>: <short description>
-
-------------------------------------------------------------------------
-
-## ▶️ Ejecución
-
-``` bash
-mvn clean package
-mvn spring-boot:run
-```
-
-------------------------------------------------------------------------
-
-## 🐳 Docker
-
-``` bash
-docker build -t grind-protocol:latest .
-docker compose up --build
-```
-
-------------------------------------------------------------------------
-
-## 👨‍💻 Author
-
-David Ruiz https://www.davidrr.com
+MIT License
