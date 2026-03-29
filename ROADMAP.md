@@ -596,20 +596,36 @@ Las funcionalidades que más pueden hacer destacar este proyecto son:
 
 ---
 
-## 34. ✅ Estado del producto antes de pasar a diseño técnico
-Con todo lo definido hasta aquí, Grind Protocol ya tiene cerrados:
+## 📌 Scope v1 (MVP)
 
-- 🧠 visión
-- 🧬 identidad
-- 🎮 reglas del juego
-- 💱 economía del sistema
-- 📈 progresión
-- 🔥 rachas
-- 🧬 estadísticas
-- 🏆 recompensas
-- 🚨 alertas
-- 💀 consecuencias de fallo
-- 🎨 enfoque visual
-- ⚔️ expansión futura social
+Incluye:
 
-Esto ya constituye una base de producto muy sólida y suficientemente definida para pasar a la siguiente fase.
+- sistema de tareas (CRUD)
+- completado de tareas
+- cálculo de XP
+- sistema de niveles
+- racha diaria
+- mínimo diario configurable
+- Core Points
+- recompensas básicas
+- alertas simples
+- histórico básico
+
+---
+
+## 🚧 Fuera de scope (por ahora)
+
+- duelos entre usuarios
+- rankings
+- stats que afecten XP
+- salvadores de racha
+- debuffs avanzados
+- sistema social
+
+---
+
+## 🎯 Objetivo del MVP
+
+Validar el loop principal del sistema:
+
+tareas → XP → racha → recompensa
