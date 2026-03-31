@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.2](https://github.com/DayBRR/grind-protocol/compare/v0.1.1...v0.1.2) (2026-03-31)
+
+
+### Documentation
+
+* add database design (MVP ERD) ([0aaaf16](https://github.com/DayBRR/grind-protocol/commit/0aaaf16da21c25caae2c85b8c9f2fb2486e139c2))
+* add database design (MVP ERD) ([2830660](https://github.com/DayBRR/grind-protocol/commit/2830660eb7275468cad12648bf0bd5470ade19f5))
+
 ## [0.1.1](https://github.com/DayBRR/grind-protocol/compare/v0.1.0...v0.1.1) (2026-03-29)
 
 
