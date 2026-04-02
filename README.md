@@ -7,6 +7,14 @@
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen?logo=springboot)
 
 ---
+## 📚 Documentation
+
+- [Architecture](docs/ARCHITECTURE.md)
+- [Git conventional commits](docs/git_conventional_commits_cheatsheet.md)
+- [Database Design](docs/DATABASE_DESIGN.md)
+- [Roadmap](docs/ROADMAP.md)
+- [Contributing](docs/CONTRIBUTING.md)
+---
 
 ## 🧠 What is Grind Protocol?
 
