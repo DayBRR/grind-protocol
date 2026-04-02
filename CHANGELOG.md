@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.3](https://github.com/DayBRR/grind-protocol/compare/v0.1.2...v0.1.3) (2026-04-02)
+
+
+### Documentation
+
+* reorganize documentation into /docs folder ([60be71e](https://github.com/DayBRR/grind-protocol/commit/60be71e8abb86bf3f6cd94bc3612c432295122d5))
+* reorganize documentation into /docs folder ([2f63cd2](https://github.com/DayBRR/grind-protocol/commit/2f63cd28646bbae452c0c6986241608462bc9469))
+
 ## [0.1.2](https://github.com/DayBRR/grind-protocol/compare/v0.1.1...v0.1.2) (2026-03-31)
 
 
