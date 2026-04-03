@@ -28,6 +28,7 @@ security:
       enabled: false
     refresh:
       enabled: false
+
   jwt:
     issuer: grind-protocol-test
     expiration: 900000

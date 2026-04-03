@@ -1,0 +1,24 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+  flyway:
+    enabled: true
+
+  sql:
+    init:
+      mode: never
+
+security:
+  rate-limit:
+    login:
+      enabled: false
+    refresh:
+      enabled: false
+
+  jwt:
+    issuer: grind-protocol-integration-test
+    expiration: 900000
+    secret-key: kiZBXT4bphjoTdPrxGFYSzdvYxK0yaQ8tu/RhTZ+pvo=

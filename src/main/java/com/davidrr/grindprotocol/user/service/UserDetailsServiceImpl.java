@@ -1,12 +1,17 @@
 package com.davidrr.grindprotocol.user.service;
 
+import com.davidrr.grindprotocol.security.model.AuthenticatedUser;
 import com.davidrr.grindprotocol.user.model.User;
 import com.davidrr.grindprotocol.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -23,11 +28,15 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                         new UsernameNotFoundException("User not found: " + username)
                 );
 
-        return org.springframework.security.core.userdetails.User
-                .withUsername(user.getUsername())
-                .password(user.getPassword())
-                .roles(user.getRole())
-                .disabled(!user.isEnabled())
-                .build();
+        List<GrantedAuthority> authorities = List.of(
+                new SimpleGrantedAuthority("ROLE_" + user.getRole())
+        );
+
+        return new AuthenticatedUser(
+                user.getId(),
+                user.getUsername(),
+                user.getPassword(),
+                authorities
+        );
     }
 }
