@@ -35,6 +35,9 @@ public class User extends BaseAuditableEntity {
     @Builder.Default
     private boolean enabled = true;
 
+    @Column(nullable = false)
+    private String email;
+
     @Column(name = "email_verified", nullable = false)
     private boolean emailVerified;
 
