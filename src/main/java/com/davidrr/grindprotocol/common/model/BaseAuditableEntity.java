@@ -4,7 +4,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,23 +21,22 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseAuditableEntity {
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    protected LocalDateTime createdAt;
 
     @LastModifiedDate
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    protected LocalDateTime updatedAt;
 
     @CreatedBy
     @Column(name = "created_by")
-    private Long createdBy;
+    protected Long createdBy;
 
     @LastModifiedBy
     @Column(name = "updated_by")
-    private Long updatedBy;
+    protected Long updatedBy;
 }
