@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.1.4](https://github.com/DayBRR/grind-protocol/compare/v0.1.3...v0.1.4) (2026-04-03)
+
+
+### Features
+
+* **audit:** implement login audit and improve AuditorAware resolution ([b914c3c](https://github.com/DayBRR/grind-protocol/commit/b914c3c5763e5e80830638699db0072567f7567c))
+* **auditing:** add JPA auditing base configuration and entity support ([143f7a0](https://github.com/DayBRR/grind-protocol/commit/143f7a040566a2f5b74552580d637ae3eca18a80))
+* **auth:** add field email into user ([bfd65f9](https://github.com/DayBRR/grind-protocol/commit/bfd65f9a92ac633138906dc827d9196f9a1e795b))
+* **auth:** add field email into user ([6985288](https://github.com/DayBRR/grind-protocol/commit/69852885f5b22e24a2091df9f18e84f2efddc1b5))
+* **auth:** create user profile after registration event ([16c04f8](https://github.com/DayBRR/grind-protocol/commit/16c04f884f1b8bf3c046c77365cb9e3f6b9bb209))
+* **db:** add email and audit fields to users ([2696316](https://github.com/DayBRR/grind-protocol/commit/26963168ee6e6c1e7137820b9aa5b75ce1342a47))
+* **db:** add email and audit fields to users in data.sql file ([ac3b2a7](https://github.com/DayBRR/grind-protocol/commit/ac3b2a7e75fa9d51666e56f4c27da29aa31d7829))
+* **db:** add initial task domain tables ([0b05b01](https://github.com/DayBRR/grind-protocol/commit/0b05b01baeeb21b79143b0ea04d74f1322b195d8))
+* **security:** introduce AuthenticatedUser with user id in SecurityContext ([a631320](https://github.com/DayBRR/grind-protocol/commit/a631320dc9eb1728cfc29aacd2660bcd883b8d39))
+
 ## [0.1.3](https://github.com/DayBRR/grind-protocol/compare/v0.1.2...v0.1.3) (2026-04-02)
 
 
