@@ -86,10 +86,7 @@ public class AuthController {
             @Valid @RequestBody AuthRequest request,
             @Parameter(hidden = true) HttpServletRequest httpRequest
     ) {
-        SessionFingerprint fingerprint = new SessionFingerprint(
-                FingerprintUtils.extractIp(httpRequest),
-                FingerprintUtils.extractUserAgent(httpRequest)
-        );
+        SessionFingerprint fingerprint = SessionFingerprint.from(httpRequest);
 
         AuthTokens tokens = authService.login(request, fingerprint);
 
@@ -123,10 +120,7 @@ public class AuthController {
             throw new RefreshTokenMissingException();
         }
 
-        SessionFingerprint fingerprint = new SessionFingerprint(
-                FingerprintUtils.extractIp(request),
-                FingerprintUtils.extractUserAgent(request)
-        );
+        SessionFingerprint fingerprint = SessionFingerprint.from(request);
 
         AuthTokens tokens = authService.refresh(refreshToken, fingerprint);
 
@@ -226,11 +220,52 @@ public class AuthController {
             @ApiResponse(responseCode = "404", description = "Sesión no encontrada")
     })
     public ResponseEntity<Void> revokeSession(
-            @CookieValue(name = "refresh_token") String refreshToken,
+            @Parameter(hidden = true) HttpServletRequest request,
             @PathVariable("id") Long id
     ) {
+        String refreshToken = extractCookie(request);
+
+        if (refreshToken == null || refreshToken.isBlank()) {
+            throw new RefreshTokenMissingException();
+        }
+
         authService.revokeSession(refreshToken, id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/register")
+    @Operation(
+            summary = "Registrar usuario",
+            description = "Registra un usuario, devuelve access token y establece refresh token en cookie HttpOnly."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Usuario Registrado correctamente",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = AuthResponse.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "token": "eyJhbGciOiJIUzI1NiJ9..."
+                                    }
+                                    """)
+                    )
+            ),
+            @ApiResponse(responseCode = "401", description = "Credenciales inválidas")
+    })
+    public ResponseEntity<AuthResponse> register(
+            @RequestBody @Valid RegisterRequest request,
+            HttpServletRequest httpRequest
+    ) {
+        SessionFingerprint fingerprint = SessionFingerprint.from(httpRequest);
+        AuthTokens tokens = authService.register(request, fingerprint);
+
+        ResponseCookie refreshCookie = buildRefreshCookie(tokens.refreshToken());
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                .body(new AuthResponse(tokens.accessToken()));
     }
 
     private ResponseCookie buildRefreshCookie(String refreshTokenPlain) {

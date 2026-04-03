@@ -1,6 +1,7 @@
 package com.davidrr.grindprotocol.user.model;
 
 import com.davidrr.grindprotocol.common.model.BaseAuditableEntity;
+import com.davidrr.grindprotocol.userprofile.model.UserProfile;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -34,10 +35,6 @@ public class User extends BaseAuditableEntity {
     @Builder.Default
     private boolean enabled = true;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<RefreshToken> refreshTokens = new ArrayList<>();
-
     @Column(name = "email_verified", nullable = false)
     private boolean emailVerified;
 
@@ -46,4 +43,11 @@ public class User extends BaseAuditableEntity {
 
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<RefreshToken> refreshTokens = new ArrayList<>();
+
+    @OneToOne(mappedBy = "user")
+    private UserProfile profile;
 }
