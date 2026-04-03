@@ -6,6 +6,7 @@ import com.davidrr.grindprotocol.userprofile.service.UserProfileService;
 import com.davidrr.security.auth.event.UserRegisteredEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -18,7 +19,7 @@ public class UserProfileListener {
     private final UserRepository userRepository;
     private final UserProfileService userProfileService;
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @EventListener
     public void handleUserRegistered(UserRegisteredEvent event) {
         User user = userRepository.findById(event.userId())
                 .orElseThrow(() -> new IllegalStateException(

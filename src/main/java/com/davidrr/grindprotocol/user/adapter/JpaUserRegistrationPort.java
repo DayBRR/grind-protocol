@@ -13,7 +13,7 @@ public class JpaUserRegistrationPort implements UserRegistrationPort {
     private final UserRepository userRepository;
 
     @Override
-    public RegisteredUser register(String username, String encodedPassword) {
+    public RegisteredUser register(String username, String email, String encodedPassword) {
         userRepository.findByUsername(username)
                 .ifPresent(existing -> {
                     throw new IllegalStateException("Username already exists: " + username);
@@ -23,6 +23,7 @@ public class JpaUserRegistrationPort implements UserRegistrationPort {
                 .username(username)
                 .password(encodedPassword)
                 .role("USER")
+                .email(email)
                 .enabled(true)
                 .emailVerified(false)
                 .build();
