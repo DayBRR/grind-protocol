@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.5](https://github.com/DayBRR/grind-protocol/compare/v0.1.4...v0.1.5) (2026-04-04)
+
+
+### Features
+
+* **logging:** add request correlation and dedicated API error loggers ([4c3989a](https://github.com/DayBRR/grind-protocol/commit/4c3989a8327fc5aa82e0a57304b1b60979150a29))
+
 ## [0.1.4](https://github.com/DayBRR/grind-protocol/compare/v0.1.3...v0.1.4) (2026-04-03)
 
 
