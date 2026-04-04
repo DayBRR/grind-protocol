@@ -1,6 +1,6 @@
 package com.davidrr.grindprotocol.integration.auth;
 
-import com.davidrr.grindprotocol.integration.AbstractPostgresIntegrationTest;
+import com.davidrr.grindprotocol.integration.AbstractPostgresIT;
 import com.davidrr.grindprotocol.user.model.User;
 import com.davidrr.grindprotocol.user.repository.UserRepository;
 import com.davidrr.grindprotocol.userprofile.repository.UserProfileRepository;
@@ -18,7 +18,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @AutoConfigureMockMvc
-class AuthRegisterIntegrationTest extends AbstractPostgresIntegrationTest {
+class AuthRegisterIT extends AbstractPostgresIT {
 
     @Autowired
     private MockMvc mockMvc;

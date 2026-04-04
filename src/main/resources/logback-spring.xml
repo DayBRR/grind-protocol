@@ -4,10 +4,17 @@
     <!-- Ruta base de logs -->
     <property name="LOG_PATH" value="logs"/>
 
+    <!-- Patrones comunes -->
+    <property name="CONSOLE_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] [%X{requestId}] %logger - %msg%n"/>
+
+    <property name="FILE_PATTERN"
+              value="%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %-5level [%thread] [%X{requestId}] %logger{36} - %msg%n"/>
+
     <!-- ===== APPENDER CONSOLA GENERAL ===== -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %-5level %logger{36} : %msg%n</pattern>
+            <pattern>${CONSOLE_PATTERN}</pattern>
         </encoder>
     </appender>
 
@@ -21,7 +28,7 @@
         </rollingPolicy>
 
         <encoder>
-            <pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %-5level %logger{36} : %msg%n</pattern>
+            <pattern>${FILE_PATTERN}</pattern>
         </encoder>
     </appender>
 
@@ -35,7 +42,21 @@
         </rollingPolicy>
 
         <encoder>
-            <pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %-5level SECURITY_AUDIT : %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %-5level [%thread] [%X{requestId}] SECURITY_AUDIT - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ===== APPENDER FICHERO SOLO ERRORES DE API ===== -->
+    <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/api-errors.log</file>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/api-errors.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>${FILE_PATTERN}</pattern>
         </encoder>
     </appender>
 
@@ -43,6 +64,12 @@
     <logger name="SECURITY_AUDIT" level="INFO" additivity="false">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="SECURITY_FILE"/>
+    </logger>
+
+    <!-- ===== LOGGER DEDICADO A ERRORES DE API ===== -->
+    <logger name="com.davidrr.grindprotocol.common.exception.DomainExceptionHandler" level="WARN" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="ERROR_FILE"/>
     </logger>
 
     <!-- ===== SPRING Y APP ===== -->

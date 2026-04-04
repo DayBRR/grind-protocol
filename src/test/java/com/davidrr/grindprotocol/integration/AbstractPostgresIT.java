@@ -11,7 +11,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Testcontainers
 @SpringBootTest
 @ActiveProfiles("integration-test")
-public abstract class AbstractPostgresIntegrationTest {
+public abstract class AbstractPostgresIT {
 
     @Container
     static PostgreSQLContainer<?> postgres =
