@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.6](https://github.com/DayBRR/grind-protocol/compare/v0.1.5...v0.1.6) (2026-04-04)
+
+
+### Features
+
+* **user-profile:** add user profile module with service, controller, dto and mapper ([a500065](https://github.com/DayBRR/grind-protocol/commit/a5000656bf7920de159fbdf1193e2c5f0110ba81))
+
 ## [0.1.5](https://github.com/DayBRR/grind-protocol/compare/v0.1.4...v0.1.5) (2026-04-04)
 
 
