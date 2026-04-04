@@ -12,7 +12,7 @@ import java.time.Instant;
 
 @Slf4j
 @RestControllerAdvice
-public class GlobalExceptionHandler {
+public class DomainExceptionHandler {
 
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<ApiError> handleApiException(

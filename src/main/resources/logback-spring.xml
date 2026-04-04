@@ -67,7 +67,7 @@
     </logger>
 
     <!-- ===== LOGGER DEDICADO A ERRORES DE API ===== -->
-    <logger name="com.davidrr.grindprotocol.common.exception.GlobalExceptionHandler" level="WARN" additivity="false">
+    <logger name="com.davidrr.grindprotocol.common.exception.DomainExceptionHandler" level="WARN" additivity="false">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="ERROR_FILE"/>
     </logger>
