@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.7](https://github.com/DayBRR/grind-protocol/compare/v0.1.6...v0.1.7) (2026-04-05)
+
+
+### Features
+
+* **task:** implement task domain with traits system and DB alignment ([ea97c62](https://github.com/DayBRR/grind-protocol/commit/ea97c62564bdd4d3a184387b4c7bac82ffc77bf1))
+* **task:** introduce task domain with traits system and enum constraints ([1f01d34](https://github.com/DayBRR/grind-protocol/commit/1f01d34e5e9bb60bbdf81089eaf859623e82e6fd))
+
 ## [0.1.6](https://github.com/DayBRR/grind-protocol/compare/v0.1.5...v0.1.6) (2026-04-04)
 
 
