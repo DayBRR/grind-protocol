@@ -1,6 +1,7 @@
 package com.davidrr.grindprotocol.task.repository;
 
 import com.davidrr.grindprotocol.task.model.Task;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -13,4 +14,10 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     Optional<Task> findByIdAndUserId(Long id, Long userId);
 
     boolean existsByIdAndUserId(Long id, Long userId);
+
+    @EntityGraph(attributePaths = {"traits"})
+    Optional<Task> findWithTraitsByIdAndUserId(Long id, Long userId);
+
+    @EntityGraph(attributePaths = {"traits"})
+    List<Task> findWithTraitsByUserIdAndActiveTrue(Long userId);
 }
