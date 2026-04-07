@@ -1,0 +1,19 @@
+package com.davidrr.grindprotocol.task.repository;
+
+import com.davidrr.grindprotocol.task.model.Trait;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+
+public interface TraitRepository extends JpaRepository<Trait, Long> {
+
+    Optional<Trait> findByCode(String code);
+
+    List<Trait> findByCodeIn(Collection<String> codes);
+
+    List<Trait> findByActiveTrue();
+
+    boolean existsByCode(String code);
+}
