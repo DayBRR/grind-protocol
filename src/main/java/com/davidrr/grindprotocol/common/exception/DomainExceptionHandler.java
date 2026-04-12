@@ -2,13 +2,18 @@ package com.davidrr.grindprotocol.common.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @RestControllerAdvice
@@ -37,31 +42,54 @@ public class DomainExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiError> handleValidation(
+    public ResponseEntity<ValidationApiError> handleValidation(
             MethodArgumentNotValidException ex,
             HttpServletRequest request
     ) {
-        String message = ex.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .findFirst()
-                .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                .orElse(ErrorMessages.VALIDATION_FAILED);
+        List<ValidationErrorDetail> errors = getValidationErrorDetails(ex);
+
+        String message = errors.isEmpty()
+                ? ErrorMessages.Validation.FAILED
+                : "Se han encontrado errores de validación";
 
         log.warn(
-                "VALIDATION_ERROR code={} status={} path={} message={}",
-                ErrorCodes.VALIDATION_ERROR,
+                "VALIDATION_ERROR code={} status={} path={} errors={}",
+                ErrorCodes.Validation.ERROR,
                 HttpStatus.BAD_REQUEST.value(),
                 request.getRequestURI(),
-                message
+                errors
         );
 
-        return buildError(
-                HttpStatus.BAD_REQUEST,
-                ErrorCodes.VALIDATION_ERROR,
+        ValidationApiError body = new ValidationApiError(
+                Instant.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ErrorCodes.Validation.ERROR,
                 message,
-                request
+                request.getRequestURI(),
+                errors
         );
+
+        return ResponseEntity.badRequest().body(body);
+    }
+
+    private @NonNull List<ValidationErrorDetail> getValidationErrorDetails(MethodArgumentNotValidException ex) {
+        List<ValidationErrorDetail> errors = new ArrayList<>();
+
+        for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
+            errors.add(new ValidationErrorDetail(
+                    fieldError.getField(),
+                    fieldError.getDefaultMessage()
+            ));
+        }
+
+        for (ObjectError globalError : ex.getBindingResult().getGlobalErrors()) {
+            errors.add(new ValidationErrorDetail(
+                    globalError.getObjectName(),
+                    globalError.getDefaultMessage()
+            ));
+        }
+        return errors;
     }
 
     @ExceptionHandler(Exception.class)
@@ -71,7 +99,7 @@ public class DomainExceptionHandler {
     ) {
         log.error(
                 "UNHANDLED_ERROR code={} status={} path={} exception={} message={}",
-                ErrorCodes.INTERNAL_ERROR,
+                ErrorCodes.Generic.INTERNAL_ERROR,
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 request.getRequestURI(),
                 ex.getClass().getSimpleName(),
@@ -81,8 +109,8 @@ public class DomainExceptionHandler {
 
         return buildError(
                 HttpStatus.INTERNAL_SERVER_ERROR,
-                ErrorCodes.INTERNAL_ERROR,
-                ErrorMessages.INTERNAL_ERROR,
+                ErrorCodes.Generic.INTERNAL_ERROR,
+                ErrorMessages.Generic.INTERNAL_ERROR,
                 request
         );
     }
