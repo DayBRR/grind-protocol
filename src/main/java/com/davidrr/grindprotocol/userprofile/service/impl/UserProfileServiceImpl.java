@@ -47,7 +47,7 @@ public class UserProfileServiceImpl implements UserProfileService {
     public UserProfileResponse getCurrentUserProfile(Long currentUserId) {
         UserProfile profile = userProfileRepository.findByUserId(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        ErrorCodes.USER_PROFILE_NOT_FOUND,
+                        ErrorCodes.UserProfile.NOT_FOUND,
                         "User profile not found for user id: " + currentUserId
                 ));
 
@@ -59,7 +59,7 @@ public class UserProfileServiceImpl implements UserProfileService {
     public UserProfileResponse updateProfile(Long currentUserId, UpdateUserProfileRequest request) {
         UserProfile profile = userProfileRepository.findByUserId(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        ErrorCodes.USER_PROFILE_NOT_FOUND,
+                        ErrorCodes.UserProfile.NOT_FOUND,
                         "User profile not found for user id: " + currentUserId
                 ));
 
