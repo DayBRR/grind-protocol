@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.8](https://github.com/DayBRR/grind-protocol/compare/v0.1.7...v0.1.8) (2026-04-12)
+
+
+### Features
+
+* **common:** improve validation error handling and shared business exceptions ([e88cf08](https://github.com/DayBRR/grind-protocol/commit/e88cf083d3a0b9bd4ae9d5b07361a447f89dc7f5))
+* **task:** add repositories for task domain persistence ([055e8f4](https://github.com/DayBRR/grind-protocol/commit/055e8f46ecebafd52f13c917de9351fb0a757e09))
+* **task:** add repositories for task domain persistence ([a3cb420](https://github.com/DayBRR/grind-protocol/commit/a3cb42057d95e4fd322d09af47bfedb849157b52))
+* **task:** add task controller, service, mapper and request validation ([30abbe7](https://github.com/DayBRR/grind-protocol/commit/30abbe77517862e86ba57604dd54924301d2cc4e))
+
 ## [0.1.7](https://github.com/DayBRR/grind-protocol/compare/v0.1.6...v0.1.7) (2026-04-05)
 
 
