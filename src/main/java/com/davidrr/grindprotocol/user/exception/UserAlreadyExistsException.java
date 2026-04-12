@@ -9,8 +9,8 @@ public class UserAlreadyExistsException extends ApiException {
 
     public UserAlreadyExistsException(String username) {
         super(
-                ErrorCodes.USER_ALREADY_EXISTS,
-                ErrorMessages.USER_ALREADY_EXISTS + ": " + username,
+                ErrorCodes.User.ALREADY_EXISTS,
+                ErrorMessages.User.ALREADY_EXISTS + ": " + username,
                 HttpStatus.CONFLICT
         );
     }
