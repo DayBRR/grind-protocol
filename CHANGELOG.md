@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.9](https://github.com/DayBRR/grind-protocol/compare/v0.1.8...v0.1.9) (2026-04-13)
+
+
+### Features
+
+* **task-template:** implement task template module (CRUD + public templates) ([710feaa](https://github.com/DayBRR/grind-protocol/commit/710feaab80e619787fed3ebc7b013fe2e94e2cf4))
+* **task:** add task creation from template ([011a930](https://github.com/DayBRR/grind-protocol/commit/011a930bcb180ccc66f5e4456487397f0e64bed0))
+
 ## [0.1.8](https://github.com/DayBRR/grind-protocol/compare/v0.1.7...v0.1.8) (2026-04-12)
 
 
