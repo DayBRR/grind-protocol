@@ -4,12 +4,15 @@ import com.davidrr.grindprotocol.common.exception.BusinessException;
 import com.davidrr.grindprotocol.common.exception.ErrorCodes;
 import com.davidrr.grindprotocol.common.exception.ErrorMessages;
 import com.davidrr.grindprotocol.common.exception.ResourceNotFoundException;
+import com.davidrr.grindprotocol.task.dto.CreateTaskFromTemplateRequest;
 import com.davidrr.grindprotocol.task.dto.CreateTaskRequest;
 import com.davidrr.grindprotocol.task.dto.TaskResponse;
 import com.davidrr.grindprotocol.task.mapper.TaskMapper;
 import com.davidrr.grindprotocol.task.model.Task;
+import com.davidrr.grindprotocol.task.model.TaskTemplate;
 import com.davidrr.grindprotocol.task.model.Trait;
 import com.davidrr.grindprotocol.task.repository.TaskRepository;
+import com.davidrr.grindprotocol.task.repository.TaskTemplateRepository;
 import com.davidrr.grindprotocol.task.repository.TraitRepository;
 import com.davidrr.grindprotocol.task.service.TaskService;
 import com.davidrr.grindprotocol.user.model.User;
@@ -30,6 +33,7 @@ import java.util.stream.Collectors;
 public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
+    private final TaskTemplateRepository taskTemplateRepository;
     private final TraitRepository traitRepository;
     private final UserRepository userRepository;
     private final TaskMapper taskMapper;
@@ -73,6 +77,47 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Transactional
+    public TaskResponse createTaskFromTemplate(Long userId, CreateTaskFromTemplateRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        ErrorCodes.User.NOT_FOUND,
+                        ErrorMessages.User.NOT_FOUND
+                ));
+
+        TaskTemplate template = taskTemplateRepository.findByIdAndActiveTrue(request.getTemplateId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        ErrorCodes.Task.NOT_FOUND,
+                        "Plantilla no encontrada"
+                ));
+
+        validateTemplateAccess(userId, template);
+
+        Task task = Task.builder()
+                .user(user)
+                .template(template)
+                .title(resolveTitle(request, template))
+                .description(resolveDescription(request, template))
+                .category(template.getCategory())
+                .difficulty(template.getDifficulty())
+                .taskType(template.getTaskType())
+                .baseXp(template.getBaseXp())
+                .mandatory(template.isMandatory())
+                .streakEligible(template.isStreakEligible())
+                .repeatable(template.isRepeatable())
+                .maxCompletionsPerDay(template.getMaxCompletionsPerDay())
+                .diminishingReturnsEnabled(template.isDiminishingReturnsEnabled())
+                .active(template.isActive())
+                .dueTime(resolveDueTime(request, template))
+                .weeklyClosingDay(resolveWeeklyClosingDay(request, template))
+                .traits(copyTraits(template.getTraits()))
+                .build();
+
+        Task savedTask = taskRepository.save(task);
+        return taskMapper.toResponse(savedTask);
+    }
+
+    @Override
     public List<TaskResponse> getActiveTasksByUser(Long userId) {
         return taskRepository.findWithTraitsByUserIdAndActiveTrue(userId)
                 .stream()
@@ -98,6 +143,59 @@ public class TaskServiceImpl implements TaskService {
                     "Una tarea no repetible no puede tener maxCompletionsPerDay mayor que 1"
             );
         }
+    }
+
+    private void validateTemplateAccess(Long userId, TaskTemplate template) {
+        boolean isOwner = template.getCreatorUser() != null
+                && template.getCreatorUser().getId().equals(userId);
+
+        if (!isOwner && !template.isPublicTemplate()) {
+            throw new ResourceNotFoundException(
+                    ErrorCodes.Task.NOT_FOUND,
+                    "Plantilla no encontrada"
+            );
+        }
+    }
+
+    private String resolveTitle(CreateTaskFromTemplateRequest request, TaskTemplate template) {
+        if (request.getTitleOverride() != null && !request.getTitleOverride().isBlank()) {
+            return request.getTitleOverride().trim();
+        }
+        return template.getTitle();
+    }
+
+    private String resolveDescription(CreateTaskFromTemplateRequest request, TaskTemplate template) {
+        if (request.getDescriptionOverride() != null && !request.getDescriptionOverride().isBlank()) {
+            return request.getDescriptionOverride().trim();
+        }
+        return template.getDescription();
+    }
+
+    private java.time.LocalTime resolveDueTime(CreateTaskFromTemplateRequest request, TaskTemplate template) {
+        if (request.getDueTimeOverride() != null) {
+            return request.getDueTimeOverride();
+        }
+        return template.getDueTime();
+    }
+
+    private Integer resolveWeeklyClosingDay(CreateTaskFromTemplateRequest request, TaskTemplate template) {
+        if (request.getWeeklyClosingDayOverride() != null) {
+            if (request.getWeeklyClosingDayOverride() < 1 || request.getWeeklyClosingDayOverride() > 7) {
+                throw new BusinessException(
+                        ErrorCodes.Task.CONFIGURATION_INVALID,
+                        "weeklyClosingDayOverride debe estar entre 1 y 7"
+                );
+            }
+            return request.getWeeklyClosingDayOverride();
+        }
+        return template.getWeeklyClosingDay();
+    }
+
+    private Set<Trait> copyTraits(Set<Trait> traits) {
+        if (traits == null || traits.isEmpty()) {
+            return new LinkedHashSet<>();
+        }
+        return new LinkedHashSet<>(traits);
     }
 
     private Set<String> normalizeTraitCodes(Set<String> traitCodes) {

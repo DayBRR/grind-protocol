@@ -9,14 +9,18 @@ import java.util.Optional;
 
 public interface TaskTemplateRepository extends JpaRepository<TaskTemplate, Long> {
 
-    List<TaskTemplate> findByActiveTrue();
-
-    List<TaskTemplate> findByIsPublicTrueAndActiveTrue();
-
+    @EntityGraph(attributePaths = {"traits"})
     List<TaskTemplate> findByCreatorUserIdAndActiveTrue(Long creatorUserId);
 
+    @EntityGraph(attributePaths = {"traits"})
+    List<TaskTemplate> findByPublicTemplateTrueAndActiveTrue();
+
+    @EntityGraph(attributePaths = {"traits"})
     Optional<TaskTemplate> findByIdAndActiveTrue(Long id);
 
     @EntityGraph(attributePaths = {"traits"})
-    Optional<TaskTemplate> findWithTraitsByIdAndActiveTrue(Long id);
+    Optional<TaskTemplate> findByIdAndCreatorUserIdAndActiveTrue(Long id, Long creatorUserId);
+
+    @EntityGraph(attributePaths = {"traits"})
+    Optional<TaskTemplate> findByIdAndPublicTemplateTrueAndActiveTrue(Long id);
 }

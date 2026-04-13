@@ -1,11 +1,21 @@
 package com.davidrr.grindprotocol.common.exception;
 
+import com.davidrr.grindprotocol.common.validation.ValidationMessages;
+
 public final class ErrorMessages {
 
     public static final String NO_INSTANCES = "No instances";
 
     private ErrorMessages() {
         throw new AssertionError(NO_INSTANCES);
+    }
+
+    public static final class Generic {
+        private Generic() {
+            throw new AssertionError(NO_INSTANCES);
+        }
+
+        public static final String INTERNAL_ERROR = "Se ha producido un error interno";
     }
 
     public static final class Validation {
@@ -44,11 +54,12 @@ public final class ErrorMessages {
         public static final String TRAIT_NOT_FOUND_OR_INACTIVE = "Uno o varios traits no existen o están inactivos";
     }
 
-    public static final class Generic {
-        private Generic() {
+    public static final class TaskTemplate {
+        private TaskTemplate () {
             throw new AssertionError(NO_INSTANCES);
         }
 
-        public static final String INTERNAL_ERROR = "Se ha producido un error interno";
+        public static final String NOT_FOUND = "Plantilla no encontrada";
+        public static final String PUBLIC_NOT_FOUND = "Plantilla pública no encontrada";
     }
 }

@@ -1,6 +1,7 @@
 package com.davidrr.grindprotocol.task.controller;
 
 import com.davidrr.grindprotocol.security.model.AuthenticatedUser;
+import com.davidrr.grindprotocol.task.dto.CreateTaskFromTemplateRequest;
 import com.davidrr.grindprotocol.task.dto.CreateTaskRequest;
 import com.davidrr.grindprotocol.task.dto.TaskResponse;
 import com.davidrr.grindprotocol.task.service.TaskService;
@@ -147,5 +148,32 @@ public class TaskController {
             @PathVariable Long taskId
     ) {
         return taskService.getTaskById(currentUser.getId(), taskId);
+    }
+
+    @PostMapping("/from-template")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(
+            summary = "Crear una tarea desde plantilla",
+            description = "Crea una tarea para el usuario autenticado a partir de una plantilla propia o pública."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Tarea creada correctamente desde plantilla",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = TaskResponse.class)
+                    )
+            ),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos"),
+            @ApiResponse(responseCode = "401", description = "No autenticado"),
+            @ApiResponse(responseCode = "404", description = "Plantilla no encontrada")
+    })
+    public TaskResponse createTaskFromTemplate(
+            @Parameter(hidden = true)
+            @AuthenticationPrincipal AuthenticatedUser currentUser,
+            @Valid @RequestBody CreateTaskFromTemplateRequest request
+    ) {
+        return taskService.createTaskFromTemplate(currentUser.getId(), request);
     }
 }

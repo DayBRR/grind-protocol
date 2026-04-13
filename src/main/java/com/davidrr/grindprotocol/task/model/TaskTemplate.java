@@ -79,7 +79,7 @@ public class TaskTemplate extends BaseAuditableEntity {
     private Integer weeklyClosingDay;
 
     @Column(name = "is_public", nullable = false)
-    private boolean isPublic;
+    private boolean publicTemplate;
 
     @Column(nullable = false)
     private boolean active;
