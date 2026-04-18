@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.10](https://github.com/DayBRR/grind-protocol/compare/v0.1.9...v0.1.10) (2026-04-18)
+
+
+### Features
+
+* task completion & daily progress system ([ad222a1](https://github.com/DayBRR/grind-protocol/commit/ad222a127312d20d49adfa7e94b3a46c8a004c10))
+* **task:** implement task completion and daily progress system ([88728e6](https://github.com/DayBRR/grind-protocol/commit/88728e6c295c95829f98856a9bdff035b769d76d))
+
 ## [0.1.9](https://github.com/DayBRR/grind-protocol/compare/v0.1.8...v0.1.9) (2026-04-13)
 
 
