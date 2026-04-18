@@ -1,13 +1,9 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/grind_protocol
+    url: jdbc:postgresql://postgres:5432/grind_protocol
     username: grind_protocol
     password: grind_protocol
     driver-class-name: org.postgresql.Driver
-
-  jackson:
-    serialization:
-      write-dates-as-timestamps: false
 
   jpa:
     hibernate:
@@ -27,4 +23,6 @@ spring:
 
 security:
   jwt:
+    issuer: grind-protocol
+    expiration: 900000
     secret-key: aTSvmUXBiooktgiD5cdyw3IM0W+8AMfhh5nRiCZmQ9o=

@@ -2,10 +2,11 @@ spring:
   application:
     name: Grind Protocol
   profiles:
-    default: dev
+    default: local
   jackson:
     serialization:
       write-dates-as-timestamps: false
+
 security:
   cors:
     allowed-origins: "http://localhost:4200"
@@ -32,9 +33,11 @@ security:
       enabled: true
       max-attempts: 10
       window-seconds: 60
+
 server:
   servlet:
     context-path: /api
+
 logging:
   level:
     org.springframework.security: INFO
