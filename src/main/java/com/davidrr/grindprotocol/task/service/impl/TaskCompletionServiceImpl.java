@@ -13,6 +13,7 @@ import com.davidrr.grindprotocol.task.model.TaskCompletion;
 import com.davidrr.grindprotocol.task.repository.TaskCompletionRepository;
 import com.davidrr.grindprotocol.task.repository.TaskRepository;
 import com.davidrr.grindprotocol.task.service.DailyProgressService;
+import com.davidrr.grindprotocol.progression.service.ProgressionService;
 import com.davidrr.grindprotocol.task.service.TaskCompletionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ public class TaskCompletionServiceImpl implements TaskCompletionService {
     private final TaskRepository taskRepository;
     private final TaskCompletionRepository taskCompletionRepository;
     private final DailyProgressService dailyProgressService;
+    private final ProgressionService progressionService;
     private final TaskCompletionMapper taskCompletionMapper;
 
     @Override
@@ -71,6 +73,7 @@ public class TaskCompletionServiceImpl implements TaskCompletionService {
         TaskCompletion saved = taskCompletionRepository.save(completion);
 
         dailyProgressService.recalculateDailyProgress(userId, completionDate);
+        progressionService.applyTaskCompletionProgress(userId, saved);
 
         return taskCompletionMapper.toResponse(saved);
     }

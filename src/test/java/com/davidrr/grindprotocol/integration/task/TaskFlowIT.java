@@ -152,6 +152,12 @@ class TaskFlowIT extends AbstractPostgresIT {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.taskId").value(task3Id));
 
+        mockMvc.perform(get("/me/profile")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(auth.token())))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalXp").value(90))
+                .andExpect(jsonPath("$.corePoints").value(9));
+
         mockMvc.perform(get("/me/task-completions/today")
                         .header(HttpHeaders.AUTHORIZATION, bearer(auth.token())))
                 .andExpect(status().isOk())
@@ -245,6 +251,12 @@ class TaskFlowIT extends AbstractPostgresIT {
                 .andExpect(jsonPath("$.mandatoryTasksRequired").value(0))
                 .andExpect(jsonPath("$.mandatoryTasksCompleted").value(0))
                 .andExpect(jsonPath("$.dayQualified").value(false));
+
+        mockMvc.perform(get("/me/profile")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(auth.token())))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalXp").value(31))
+                .andExpect(jsonPath("$.corePoints").value(3));
     }
 
     private long createTask(String token, String requestBody) throws Exception {

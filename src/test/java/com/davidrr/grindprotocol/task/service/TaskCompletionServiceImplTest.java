@@ -2,6 +2,7 @@ package com.davidrr.grindprotocol.task.service;
 
 import com.davidrr.grindprotocol.common.exception.BusinessException;
 import com.davidrr.grindprotocol.common.exception.ResourceNotFoundException;
+import com.davidrr.grindprotocol.progression.service.ProgressionService;
 import com.davidrr.grindprotocol.task.dto.CreateTaskCompletionRequest;
 import com.davidrr.grindprotocol.task.dto.TaskCompletionResponse;
 import com.davidrr.grindprotocol.task.enums.CompletionSource;
@@ -42,6 +43,8 @@ class TaskCompletionServiceImplTest {
     private DailyProgressService dailyProgressService;
     @Mock
     private TaskCompletionMapper taskCompletionMapper;
+    @Mock
+    private ProgressionService progressionService;
 
     @InjectMocks
     private TaskCompletionServiceImpl taskCompletionService;
@@ -97,6 +100,7 @@ class TaskCompletionServiceImplTest {
         assertThat(saved.getSource()).isEqualTo(CompletionSource.MANUAL);
 
         verify(dailyProgressService).recalculateDailyProgress(eq(1L), any(LocalDate.class));
+        verify(progressionService).applyTaskCompletionProgress(eq(1L), any(TaskCompletion.class));
         assertThat(result).isSameAs(response);
     }
 
