@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.11](https://github.com/DayBRR/grind-protocol/compare/v0.1.10...v0.1.11) (2026-05-04)
+
+
+### Features
+
+* **progression:** apply xp and core points on task completion ([0f4c7ac](https://github.com/DayBRR/grind-protocol/commit/0f4c7ac90ce7712d057f3a586bc862b5b1e9af2b))
+* **progression:** implement streak system with finalize-day endpoint and tests ([33cb078](https://github.com/DayBRR/grind-protocol/commit/33cb07862a25a94f56e8bfd3827da89b76d342d1))
+
 ## [0.1.10](https://github.com/DayBRR/grind-protocol/compare/v0.1.9...v0.1.10) (2026-04-18)
 
 
