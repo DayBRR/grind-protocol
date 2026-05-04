@@ -56,9 +56,15 @@ public final class ErrorCodes {
             throw new AssertionError(ErrorMessages.NO_INSTANCES);
         }
 
-        public static final String NOT_FOUND = "TASK_NOT_FOUND";
-        public static final String COMPLETION_NOT_ALLOWED = "TASK_COMPLETION_NOT_ALLOWED";
-        public static final String CONFIGURATION_INVALID = "TASK_CONFIGURATION_INVALID";
+        public static final String NOT_FOUND = "TASK_TEMPLATE_NOT_FOUND";
         public static final String TRAIT_NOT_FOUND_OR_INACTIVE = "TRAIT_NOT_FOUND_OR_INACTIVE";
+    }
+
+    public static final class DailyProgress {
+        private DailyProgress() {
+            throw new AssertionError(ErrorMessages.NO_INSTANCES);
+        }
+
+        public static final String NOT_FOUND = "DAILY_PROGRESS_TEMPLATE_NOT_FOUND";
     }
 }
