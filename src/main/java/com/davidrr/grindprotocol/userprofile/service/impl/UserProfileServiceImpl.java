@@ -32,6 +32,7 @@ public class UserProfileServiceImpl implements UserProfileService {
                 .user(user)
                 .displayName(user.getUsername())
                 .dailyTaskGoal(3)
+                .level(1)
                 .totalXp(0L)
                 .corePoints(0L)
                 .currentStreak(0)

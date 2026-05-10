@@ -26,6 +26,9 @@ public class UserProfileResponse {
     @Schema(description = "Experiencia total acumulada", example = "0")
     private Long totalXp;
 
+    @Schema(description = "Nivel actual calculado a partir de la experiencia total", example = "1")
+    private Integer level;
+
     @Schema(description = "Puntos de la aplicación", example = "0")
     private Long corePoints;
 

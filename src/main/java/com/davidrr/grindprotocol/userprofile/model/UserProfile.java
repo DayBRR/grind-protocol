@@ -36,6 +36,9 @@ public class UserProfile extends BaseAuditableEntity {
     @Column(name = "total_xp", nullable = false)
     private Long totalXp;
 
+    @Column(name = "current_level", nullable = false)
+    private Integer level;
+
     @Column(name = "core_points", nullable = false)
     private Long corePoints;
 
