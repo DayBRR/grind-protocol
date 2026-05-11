@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.12](https://github.com/DayBRR/grind-protocol/compare/v0.1.11...v0.1.12) (2026-05-10)
+
+
+### Features
+
+* **progression:** implement user level progression system ([c26b98a](https://github.com/DayBRR/grind-protocol/commit/c26b98a134b06bb7b240f0c640bcd4df88cb32f4))
+* **progression:** implement user level progression system ([96a822a](https://github.com/DayBRR/grind-protocol/commit/96a822aee0f5f7ded237e9cc5a3120a315a469fc))
+
 ## [0.1.11](https://github.com/DayBRR/grind-protocol/compare/v0.1.10...v0.1.11) (2026-05-04)
 
 
