@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.13](https://github.com/DayBRR/grind-protocol/compare/v0.1.12...v0.1.13) (2026-05-11)
+
+
+### Features
+
+* **progression:** add progression summary endpoint ([3e782dc](https://github.com/DayBRR/grind-protocol/commit/3e782dc604b06f661ba86f9fb7511f994a60899e))
+* **progression:** add progression summary endpoint ([0f5cc36](https://github.com/DayBRR/grind-protocol/commit/0f5cc364d93a635f8d23f0495685172aa2ce2898))
+
 ## [0.1.12](https://github.com/DayBRR/grind-protocol/compare/v0.1.11...v0.1.12) (2026-05-10)
 
 
