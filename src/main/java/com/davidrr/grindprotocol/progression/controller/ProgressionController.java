@@ -1,5 +1,7 @@
 package com.davidrr.grindprotocol.progression.controller;
 
+import com.davidrr.grindprotocol.progression.dto.ProgressionSummaryResponse;
+import com.davidrr.grindprotocol.progression.service.ProgressionSummaryService;
 import com.davidrr.grindprotocol.progression.service.StreakService;
 import com.davidrr.grindprotocol.security.model.AuthenticatedUser;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,6 +24,7 @@ import java.time.LocalDate;
 public class ProgressionController {
 
     private final StreakService streakService;
+    private final ProgressionSummaryService progressionSummaryService;
 
     @PostMapping("/finalize-day")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -58,5 +61,35 @@ public class ProgressionController {
     ) {
         LocalDate targetDate = date != null ? date : LocalDate.now();
         streakService.finalizeDay(currentUser.getId(), targetDate);
+    }
+
+    @GetMapping
+    @Operation(
+            summary = "Obtener resumen de progresión",
+            description = """
+                    Devuelve el resumen de progresión del usuario autenticado.
+
+                    Incluye:
+                    - XP total acumulada.
+                    - Nivel actual.
+                    - XP mínima del nivel actual.
+                    - XP necesaria para el siguiente nivel.
+                    - XP acumulada dentro del nivel actual.
+                    - XP restante para subir de nivel.
+                    - Core Points.
+                    - Racha actual.
+                    - Mejor racha histórica.
+                    """
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Resumen de progresión obtenido correctamente"),
+            @ApiResponse(responseCode = "401", description = "No autenticado"),
+            @ApiResponse(responseCode = "404", description = "Perfil de usuario no encontrado")
+    })
+    public ProgressionSummaryResponse getSummary(
+            @Parameter(hidden = true)
+            @AuthenticationPrincipal AuthenticatedUser currentUser
+    ) {
+        return progressionSummaryService.getSummary(currentUser.getId());
     }
 }
