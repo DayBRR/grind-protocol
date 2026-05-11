@@ -1,6 +1,7 @@
 package com.davidrr.grindprotocol.progression.service;
 
 import com.davidrr.grindprotocol.common.exception.ResourceNotFoundException;
+import com.davidrr.grindprotocol.progression.service.calculator.LevelCalculator;
 import com.davidrr.grindprotocol.progression.service.impl.ProgressionServiceImpl;
 import com.davidrr.grindprotocol.task.model.Task;
 import com.davidrr.grindprotocol.task.model.TaskCompletion;
@@ -27,6 +28,9 @@ class ProgressionServiceImplTest {
 
     @Mock
     private UserProfileRepository userProfileRepository;
+
+    @Mock
+    private LevelCalculator levelCalculator;
 
     @InjectMocks
     private ProgressionServiceImpl progressionService;
@@ -56,6 +60,7 @@ class ProgressionServiceImplTest {
         completion.setAwardedCorePoints(5);
 
         when(userProfileRepository.findByUserId(1L)).thenReturn(Optional.of(profile));
+        when(levelCalculator.calculateLevel(150L)).thenReturn(2);
 
         ArgumentCaptor<UserProfile> profileCaptor = ArgumentCaptor.forClass(UserProfile.class);
 
@@ -71,6 +76,7 @@ class ProgressionServiceImplTest {
         assertThat(savedProfile.getCorePoints()).isEqualTo(15L);
 
         verify(userProfileRepository).findByUserId(1L);
+        verify(levelCalculator).calculateLevel(150L);
         verify(userProfileRepository).save(profile);
     }
 
@@ -85,6 +91,7 @@ class ProgressionServiceImplTest {
                 .isInstanceOf(ResourceNotFoundException.class);
 
         verify(userProfileRepository).findByUserId(1L);
+        verify(levelCalculator, never()).calculateLevel(anyLong());
         verify(userProfileRepository, never()).save(any());
     }
 
@@ -100,6 +107,7 @@ class ProgressionServiceImplTest {
         completion.setAwardedCorePoints(0);
 
         when(userProfileRepository.findByUserId(1L)).thenReturn(Optional.of(profile));
+        when(levelCalculator.calculateLevel(100L)).thenReturn(2);
         when(userProfileRepository.save(any(UserProfile.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -109,6 +117,7 @@ class ProgressionServiceImplTest {
         assertThat(profile.getLevel()).isEqualTo(2);
         assertThat(profile.getCorePoints()).isEqualTo(10L);
 
+        verify(levelCalculator).calculateLevel(100L);
         verify(userProfileRepository).save(profile);
     }
 
@@ -124,8 +133,8 @@ class ProgressionServiceImplTest {
                 .awardedCorePoints(2)
                 .build();
 
-        when(userProfileRepository.findByUserId(1L))
-                .thenReturn(Optional.of(profile));
+        when(userProfileRepository.findByUserId(1L)).thenReturn(Optional.of(profile));
+        when(levelCalculator.calculateLevel(110L)).thenReturn(2);
 
         progressionService.applyTaskCompletionProgress(1L, completion);
 
@@ -133,6 +142,7 @@ class ProgressionServiceImplTest {
         assertThat(profile.getLevel()).isEqualTo(2);
         assertThat(profile.getCorePoints()).isEqualTo(2L);
 
+        verify(levelCalculator).calculateLevel(110L);
         verify(userProfileRepository).save(profile);
     }
 
@@ -148,8 +158,8 @@ class ProgressionServiceImplTest {
                 .awardedCorePoints(2)
                 .build();
 
-        when(userProfileRepository.findByUserId(1L))
-                .thenReturn(Optional.of(profile));
+        when(userProfileRepository.findByUserId(1L)).thenReturn(Optional.of(profile));
+        when(levelCalculator.calculateLevel(70L)).thenReturn(1);
 
         progressionService.applyTaskCompletionProgress(1L, completion);
 
@@ -157,6 +167,7 @@ class ProgressionServiceImplTest {
         assertThat(profile.getLevel()).isEqualTo(1);
         assertThat(profile.getCorePoints()).isEqualTo(2L);
 
+        verify(levelCalculator).calculateLevel(70L);
         verify(userProfileRepository).save(profile);
     }
 }
