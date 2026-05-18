@@ -1,7 +1,5 @@
 package com.davidrr.grindprotocol.common.exception;
 
-import com.davidrr.grindprotocol.common.validation.ValidationMessages;
-
 public final class ErrorMessages {
 
     public static final String NO_INSTANCES = "No instances";
@@ -61,5 +59,18 @@ public final class ErrorMessages {
 
         public static final String NOT_FOUND = "Plantilla no encontrada";
         public static final String PUBLIC_NOT_FOUND = "Plantilla pública no encontrada";
+    }
+
+    public static final class Reward {
+        private Reward() {
+            throw new AssertionError(ErrorMessages.NO_INSTANCES);
+        }
+
+        public static final String NOT_FOUND = "Reward not found.";
+        public static final String NOT_ENOUGH_CORE_POINTS = "Not enough Core Points to redeem this reward.";
+        public static final String REQUIRED_LEVEL_NOT_REACHED = "Required level not reached for this reward.";
+        public static final String REQUIRED_STREAK_NOT_REACHED = "Required streak not reached for this reward.";
+        public static final String REDEMPTION_NOT_FOUND = "Reward redemption not found.";
+        public static final String REDEMPTION_NOT_USABLE = "Reward redemption cannot be used.";
     }
 }

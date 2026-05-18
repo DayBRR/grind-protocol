@@ -67,4 +67,17 @@ public final class ErrorCodes {
 
         public static final String NOT_FOUND = "DAILY_PROGRESS_TEMPLATE_NOT_FOUND";
     }
+
+    public static final class Reward {
+        private Reward() {
+            throw new AssertionError(ErrorMessages.NO_INSTANCES);
+        }
+
+        public static final String NOT_FOUND = "REWARD_NOT_FOUND";
+        public static final String NOT_ENOUGH_CORE_POINTS = "REWARD_NOT_ENOUGH_CORE_POINTS";
+        public static final String REQUIRED_LEVEL_NOT_REACHED = "REWARD_REQUIRED_LEVEL_NOT_REACHED";
+        public static final String REQUIRED_STREAK_NOT_REACHED = "REWARD_REQUIRED_STREAK_NOT_REACHED";
+        public static final String REDEMPTION_NOT_FOUND = "REWARD_REDEMPTION_NOT_FOUND";
+        public static final String REDEMPTION_NOT_USABLE = "REWARD_REDEMPTION_NOT_USABLE";
+    }
 }
