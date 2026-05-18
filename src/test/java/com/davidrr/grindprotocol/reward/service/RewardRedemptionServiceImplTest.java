@@ -1,0 +1,232 @@
+package com.davidrr.grindprotocol.reward.service;
+
+import com.davidrr.grindprotocol.common.exception.BusinessException;
+import com.davidrr.grindprotocol.reward.dto.RewardRedeemResponse;
+import com.davidrr.grindprotocol.reward.enums.RewardCategory;
+import com.davidrr.grindprotocol.reward.enums.RewardRedemptionStatus;
+import com.davidrr.grindprotocol.reward.enums.RewardType;
+import com.davidrr.grindprotocol.reward.model.Reward;
+import com.davidrr.grindprotocol.reward.model.RewardRedemption;
+import com.davidrr.grindprotocol.reward.repository.RewardRedemptionRepository;
+import com.davidrr.grindprotocol.reward.repository.RewardRepository;
+import com.davidrr.grindprotocol.reward.service.impl.RewardRedemptionServiceImpl;
+import com.davidrr.grindprotocol.user.model.User;
+import com.davidrr.grindprotocol.userprofile.model.UserProfile;
+import com.davidrr.grindprotocol.userprofile.repository.UserProfileRepository;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class RewardRedemptionServiceImplTest {
+
+    @Mock
+    private RewardRepository rewardRepository;
+
+    @Mock
+    private RewardRedemptionRepository rewardRedemptionRepository;
+
+    @Mock
+    private UserProfileRepository userProfileRepository;
+
+    @InjectMocks
+    private RewardRedemptionServiceImpl rewardRedemptionService;
+
+    @Test
+    @DisplayName("redeemReward debe descontar Core Points y crear redemption")
+    void redeemReward_shouldSpendCorePointsAndCreateRedemption() {
+        Reward reward = reward(10L, 20L);
+        UserProfile userProfile = userProfile(1L, 100L, 3, 5);
+
+        when(rewardRepository.findByIdAndEnabledTrue(10L))
+                .thenReturn(Optional.of(reward));
+
+        when(userProfileRepository.findByUserId(1L))
+                .thenReturn(Optional.of(userProfile));
+
+        ArgumentCaptor<RewardRedemption> redemptionCaptor =
+                ArgumentCaptor.forClass(RewardRedemption.class);
+
+        when(rewardRedemptionRepository.save(redemptionCaptor.capture()))
+                .thenAnswer(invocation -> {
+                    RewardRedemption redemption = invocation.getArgument(0);
+                    redemption.setId(50L);
+                    return redemption;
+                });
+
+        RewardRedeemResponse result =
+                rewardRedemptionService.redeemReward(10L, 1L);
+
+        assertThat(userProfile.getCorePoints()).isEqualTo(80L);
+
+        RewardRedemption saved = redemptionCaptor.getValue();
+        assertThat(saved.getReward()).isEqualTo(reward);
+        assertThat(saved.getUserProfile()).isEqualTo(userProfile);
+        assertThat(saved.getStatus()).isEqualTo(RewardRedemptionStatus.REDEEMED);
+        assertThat(saved.getCostPaid()).isEqualTo(20L);
+        assertThat(saved.getRedeemedAt()).isNotNull();
+        assertThat(saved.getUsedAt()).isNull();
+        assertThat(saved.getCancelledAt()).isNull();
+
+        assertThat(result.getRedemptionId()).isEqualTo(50L);
+        assertThat(result.getRewardId()).isEqualTo(10L);
+        assertThat(result.getRewardName()).isEqualTo("2 horas de gaming");
+        assertThat(result.getCostPaid()).isEqualTo(20L);
+        assertThat(result.getRemainingCorePoints()).isEqualTo(80L);
+        assertThat(result.getStatus()).isEqualTo(RewardRedemptionStatus.REDEEMED);
+        assertThat(result.getRedeemedAt()).isNotNull();
+
+        verify(rewardRepository).findByIdAndEnabledTrue(10L);
+        verify(userProfileRepository).findByUserId(1L);
+        verify(rewardRedemptionRepository).save(any(RewardRedemption.class));
+    }
+
+    @Test
+    @DisplayName("redeemReward debe fallar si la recompensa no existe o no está activa")
+    void redeemReward_shouldThrowWhenRewardNotFound() {
+        when(rewardRepository.findByIdAndEnabledTrue(10L))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> rewardRedemptionService.redeemReward(10L, 1L))
+                .isInstanceOf(BusinessException.class);
+
+        verify(rewardRepository).findByIdAndEnabledTrue(10L);
+        verifyNoInteractions(userProfileRepository);
+        verifyNoInteractions(rewardRedemptionRepository);
+    }
+
+    @Test
+    @DisplayName("redeemReward debe fallar si el perfil de usuario no existe")
+    void redeemReward_shouldThrowWhenUserProfileNotFound() {
+        Reward reward = reward(10L, 20L);
+
+        when(rewardRepository.findByIdAndEnabledTrue(10L))
+                .thenReturn(Optional.of(reward));
+
+        when(userProfileRepository.findByUserId(1L))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> rewardRedemptionService.redeemReward(10L, 1L))
+                .isInstanceOf(BusinessException.class);
+
+        verify(rewardRepository).findByIdAndEnabledTrue(10L);
+        verify(userProfileRepository).findByUserId(1L);
+        verifyNoInteractions(rewardRedemptionRepository);
+    }
+
+    @Test
+    @DisplayName("redeemReward debe fallar si no hay Core Points suficientes")
+    void redeemReward_shouldThrowWhenNotEnoughCorePoints() {
+        Reward reward = reward(10L, 20L);
+        UserProfile userProfile = userProfile(1L, 10L, 3, 5);
+
+        when(rewardRepository.findByIdAndEnabledTrue(10L))
+                .thenReturn(Optional.of(reward));
+
+        when(userProfileRepository.findByUserId(1L))
+                .thenReturn(Optional.of(userProfile));
+
+        assertThatThrownBy(() -> rewardRedemptionService.redeemReward(10L, 1L))
+                .isInstanceOf(BusinessException.class);
+
+        assertThat(userProfile.getCorePoints()).isEqualTo(10L);
+
+        verify(rewardRepository).findByIdAndEnabledTrue(10L);
+        verify(userProfileRepository).findByUserId(1L);
+        verify(rewardRedemptionRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("redeemReward debe fallar si el usuario no tiene el nivel requerido")
+    void redeemReward_shouldThrowWhenRequiredLevelNotReached() {
+        Reward reward = reward(10L, 20L);
+        reward.setRequiredLevel(5L);
+
+        UserProfile userProfile = userProfile(1L, 100L, 3, 5);
+
+        when(rewardRepository.findByIdAndEnabledTrue(10L))
+                .thenReturn(Optional.of(reward));
+
+        when(userProfileRepository.findByUserId(1L))
+                .thenReturn(Optional.of(userProfile));
+
+        assertThatThrownBy(() -> rewardRedemptionService.redeemReward(10L, 1L))
+                .isInstanceOf(BusinessException.class);
+
+        assertThat(userProfile.getCorePoints()).isEqualTo(100L);
+
+        verify(rewardRedemptionRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("redeemReward debe fallar si el usuario no tiene la racha requerida")
+    void redeemReward_shouldThrowWhenRequiredStreakNotReached() {
+        Reward reward = reward(10L, 20L);
+        reward.setRequiredCurrentStreak(10L);
+
+        UserProfile userProfile = userProfile(1L, 100L, 3, 5);
+
+        when(rewardRepository.findByIdAndEnabledTrue(10L))
+                .thenReturn(Optional.of(reward));
+
+        when(userProfileRepository.findByUserId(1L))
+                .thenReturn(Optional.of(userProfile));
+
+        assertThatThrownBy(() -> rewardRedemptionService.redeemReward(10L, 1L))
+                .isInstanceOf(BusinessException.class);
+
+        assertThat(userProfile.getCorePoints()).isEqualTo(100L);
+
+        verify(rewardRedemptionRepository, never()).save(any());
+    }
+
+    private Reward reward(Long id, Long costCorePoints) {
+        Reward reward = new Reward();
+        reward.setId(id);
+        reward.setName("2 horas de gaming");
+        reward.setDescription("Tiempo para jugar videojuegos");
+        reward.setType(RewardType.REAL);
+        reward.setCategory(RewardCategory.GAMING);
+        reward.setCostCorePoints(costCorePoints);
+        reward.setEnabled(true);
+        reward.setRepeatable(true);
+        return reward;
+    }
+
+    private UserProfile userProfile(
+            Long userId,
+            Long corePoints,
+            Integer level,
+            Integer currentStreak
+    ) {
+        User user = User.builder()
+                .id(userId)
+                .username("david")
+                .email("david@test.com")
+                .password("encoded")
+                .role("USER")
+                .enabled(true)
+                .build();
+
+        return UserProfile.builder()
+                .id(1L)
+                .user(user)
+                .displayName("David")
+                .dailyTaskGoal(3)
+                .totalXp(250L)
+                .level(level)
+                .corePoints(corePoints)
+                .currentStreak(currentStreak)
+                .bestStreak(currentStreak)
+                .build();
+    }
+}
