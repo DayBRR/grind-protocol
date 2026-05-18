@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.14](https://github.com/DayBRR/grind-protocol/compare/v0.1.13...v0.1.14) (2026-05-18)
+
+
+### Features
+
+* **reward:** implement reward store and redemption flow ([3c21740](https://github.com/DayBRR/grind-protocol/commit/3c21740af331ca4ca2cab38476537bfc6161f836))
+* **reward:** implement reward store and redemption system ([8ac8015](https://github.com/DayBRR/grind-protocol/commit/8ac801545eb0f9c3198f7a56250008438a0879b5))
+
 ## [0.1.13](https://github.com/DayBRR/grind-protocol/compare/v0.1.12...v0.1.13) (2026-05-11)
 
 
