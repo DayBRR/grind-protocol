@@ -5,6 +5,7 @@ import com.davidrr.grindprotocol.user.model.User;
 import com.davidrr.grindprotocol.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,7 +20,9 @@ public class AuditorAwareImpl implements AuditorAware<Long> {
 
     private final UserRepository userRepository;
 
+
     @Override
+    @NonNull
     public Optional<Long> getCurrentAuditor() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 

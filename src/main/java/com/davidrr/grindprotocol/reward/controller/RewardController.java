@@ -63,4 +63,20 @@ public class RewardController {
                 currentUser.getId()
         );
     }
+
+    @PostMapping("/redemptions/{redemptionId}/use")
+    @Operation(
+            summary = "Use redeemed reward",
+            description = "Marks a redeemed reward as used by the authenticated user."
+    )
+    public RewardRedemptionResponse useRedemption(
+            @PathVariable Long redemptionId,
+            @Parameter(hidden = true)
+            @AuthenticationPrincipal AuthenticatedUser currentUser
+    ) {
+        return rewardRedemptionService.useRedemption(
+                redemptionId,
+                currentUser.getId()
+        );
+    }
 }

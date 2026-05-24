@@ -72,5 +72,7 @@ public final class ErrorMessages {
         public static final String REQUIRED_STREAK_NOT_REACHED = "Required streak not reached for this reward.";
         public static final String REDEMPTION_NOT_FOUND = "Reward redemption not found.";
         public static final String REDEMPTION_NOT_USABLE = "Reward redemption cannot be used.";
+        public static final String NOT_REPEATABLE = "This reward is not repeatable.";
+        public static final String COOLDOWN_ACTIVE = "Reward cooldown is still active.";
     }
 }

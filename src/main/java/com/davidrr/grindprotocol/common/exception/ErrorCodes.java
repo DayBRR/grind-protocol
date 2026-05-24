@@ -79,5 +79,7 @@ public final class ErrorCodes {
         public static final String REQUIRED_STREAK_NOT_REACHED = "REWARD_REQUIRED_STREAK_NOT_REACHED";
         public static final String REDEMPTION_NOT_FOUND = "REWARD_REDEMPTION_NOT_FOUND";
         public static final String REDEMPTION_NOT_USABLE = "REWARD_REDEMPTION_NOT_USABLE";
+        public static final String NOT_REPEATABLE = "REWARD_NOT_REPEATABLE";
+        public static final String COOLDOWN_ACTIVE = "REWARD_COOLDOWN_ACTIVE";
     }
 }
