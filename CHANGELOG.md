@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.15](https://github.com/DayBRR/grind-protocol/compare/v0.1.14...v0.1.15) (2026-05-24)
+
+
+### Features
+
+* **reward:** add reward usage and cooldown validations ([c170824](https://github.com/DayBRR/grind-protocol/commit/c17082439e1fde56c4ff2734148d4e2951d8aa51))
+* **reward:** add reward usage and cooldown validations ([d5c0eca](https://github.com/DayBRR/grind-protocol/commit/d5c0eca0934f2ceba5049591bce264385ec21250))
+
 ## [0.1.14](https://github.com/DayBRR/grind-protocol/compare/v0.1.13...v0.1.14) (2026-05-18)
 
 
