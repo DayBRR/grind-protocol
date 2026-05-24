@@ -2,9 +2,11 @@ package com.davidrr.grindprotocol.reward.service;
 
 import com.davidrr.grindprotocol.common.exception.BusinessException;
 import com.davidrr.grindprotocol.reward.dto.RewardRedeemResponse;
+import com.davidrr.grindprotocol.reward.dto.RewardRedemptionResponse;
 import com.davidrr.grindprotocol.reward.enums.RewardCategory;
 import com.davidrr.grindprotocol.reward.enums.RewardRedemptionStatus;
 import com.davidrr.grindprotocol.reward.enums.RewardType;
+import com.davidrr.grindprotocol.reward.mapper.RewardMapper;
 import com.davidrr.grindprotocol.reward.model.Reward;
 import com.davidrr.grindprotocol.reward.model.RewardRedemption;
 import com.davidrr.grindprotocol.reward.repository.RewardRedemptionRepository;
@@ -21,6 +23,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -40,6 +43,10 @@ class RewardRedemptionServiceImplTest {
 
     @InjectMocks
     private RewardRedemptionServiceImpl rewardRedemptionService;
+
+    @Mock
+    private RewardMapper rewardMapper;
+
 
     @Test
     @DisplayName("redeemReward debe descontar Core Points y crear redemption")
@@ -187,6 +194,231 @@ class RewardRedemptionServiceImplTest {
         assertThat(userProfile.getCorePoints()).isEqualTo(100L);
 
         verify(rewardRedemptionRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("useRedemption debe marcar un canje REDEEMED como USED")
+    void useRedemption_shouldMarkRedeemedRewardAsUsed() {
+        Reward reward = reward(10L, 20L);
+        UserProfile userProfile = userProfile(1L, 100L, 3, 5);
+
+        RewardRedemption redemption = new RewardRedemption();
+        redemption.setId(50L);
+        redemption.setReward(reward);
+        redemption.setUserProfile(userProfile);
+        redemption.setStatus(RewardRedemptionStatus.REDEEMED);
+        redemption.setCostPaid(20L);
+        redemption.setRedeemedAt(LocalDateTime.now().minusMinutes(10));
+
+        RewardRedemptionResponse response = mock(RewardRedemptionResponse.class);
+
+        when(rewardRedemptionRepository.findByIdAndUserProfileUserId(50L, 1L))
+                .thenReturn(Optional.of(redemption));
+
+        when(rewardRedemptionRepository.save(any(RewardRedemption.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        when(rewardMapper.toRedemptionResponse(any(RewardRedemption.class)))
+                .thenReturn(response);
+
+        RewardRedemptionResponse result =
+                rewardRedemptionService.useRedemption(50L, 1L);
+
+        assertThat(result).isSameAs(response);
+        assertThat(redemption.getStatus()).isEqualTo(RewardRedemptionStatus.USED);
+        assertThat(redemption.getUsedAt()).isNotNull();
+
+        verify(rewardRedemptionRepository).findByIdAndUserProfileUserId(50L, 1L);
+        verify(rewardRedemptionRepository).save(redemption);
+        verify(rewardMapper).toRedemptionResponse(redemption);
+    }
+
+    @Test
+    @DisplayName("useRedemption debe fallar si el canje no existe o no pertenece al usuario")
+    void useRedemption_shouldThrowWhenRedemptionNotFound() {
+        when(rewardRedemptionRepository.findByIdAndUserProfileUserId(50L, 1L))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> rewardRedemptionService.useRedemption(50L, 1L))
+                .isInstanceOf(BusinessException.class);
+
+        verify(rewardRedemptionRepository).findByIdAndUserProfileUserId(50L, 1L);
+        verify(rewardRedemptionRepository, never()).save(any());
+        verifyNoInteractions(rewardMapper);
+    }
+
+    @Test
+    @DisplayName("useRedemption debe fallar si el canje no está en estado REDEEMED")
+    void useRedemption_shouldThrowWhenRedemptionIsNotRedeemed() {
+        Reward reward = reward(10L, 20L);
+        UserProfile userProfile = userProfile(1L, 100L, 3, 5);
+
+        RewardRedemption redemption = new RewardRedemption();
+        redemption.setId(50L);
+        redemption.setReward(reward);
+        redemption.setUserProfile(userProfile);
+        redemption.setStatus(RewardRedemptionStatus.USED);
+        redemption.setCostPaid(20L);
+        redemption.setRedeemedAt(LocalDateTime.now().minusMinutes(10));
+        redemption.setUsedAt(LocalDateTime.now().minusMinutes(5));
+
+        when(rewardRedemptionRepository.findByIdAndUserProfileUserId(50L, 1L))
+                .thenReturn(Optional.of(redemption));
+
+        assertThatThrownBy(() -> rewardRedemptionService.useRedemption(50L, 1L))
+                .isInstanceOf(BusinessException.class);
+
+        verify(rewardRedemptionRepository).findByIdAndUserProfileUserId(50L, 1L);
+        verify(rewardRedemptionRepository, never()).save(any());
+        verifyNoInteractions(rewardMapper);
+    }
+
+    @Test
+    @DisplayName("redeemReward debe fallar si la recompensa no es repetible y ya fue canjeada")
+    void redeemReward_shouldThrowWhenRewardIsNotRepeatableAndAlreadyRedeemed() {
+        Reward reward = reward(10L, 20L);
+        reward.setRepeatable(false);
+
+        UserProfile userProfile = userProfile(1L, 100L, 3, 5);
+
+        when(rewardRepository.findByIdAndEnabledTrue(10L))
+                .thenReturn(Optional.of(reward));
+
+        when(userProfileRepository.findByUserId(1L))
+                .thenReturn(Optional.of(userProfile));
+
+        when(rewardRedemptionRepository.existsByRewardIdAndUserProfileUserIdAndStatusIn(
+                eq(10L),
+                eq(1L),
+                anyCollection()
+        )).thenReturn(true);
+
+        assertThatThrownBy(() -> rewardRedemptionService.redeemReward(10L, 1L))
+                .isInstanceOf(BusinessException.class);
+
+        assertThat(userProfile.getCorePoints()).isEqualTo(100L);
+
+        verify(rewardRedemptionRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("redeemReward debe permitir canjear recompensa no repetible si no existe canje previo válido")
+    void redeemReward_shouldAllowNonRepeatableRewardWhenNoPreviousValidRedemptionExists() {
+        Reward reward = reward(10L, 20L);
+        reward.setRepeatable(false);
+
+        UserProfile userProfile = userProfile(1L, 100L, 3, 5);
+
+        when(rewardRepository.findByIdAndEnabledTrue(10L))
+                .thenReturn(Optional.of(reward));
+
+        when(userProfileRepository.findByUserId(1L))
+                .thenReturn(Optional.of(userProfile));
+
+        when(rewardRedemptionRepository.existsByRewardIdAndUserProfileUserIdAndStatusIn(
+                eq(10L),
+                eq(1L),
+                anyCollection()
+        )).thenReturn(false);
+
+        when(rewardRedemptionRepository.save(any(RewardRedemption.class)))
+                .thenAnswer(invocation -> {
+                    RewardRedemption redemption = invocation.getArgument(0);
+                    redemption.setId(50L);
+                    return redemption;
+                });
+
+        RewardRedeemResponse result =
+                rewardRedemptionService.redeemReward(10L, 1L);
+
+        assertThat(result.getRedemptionId()).isEqualTo(50L);
+        assertThat(userProfile.getCorePoints()).isEqualTo(80L);
+
+        verify(rewardRedemptionRepository).save(any(RewardRedemption.class));
+    }
+
+    @Test
+    @DisplayName("redeemReward debe fallar si el cooldown sigue activo")
+    void redeemReward_shouldThrowWhenCooldownIsActive() {
+        Reward reward = reward(10L, 20L);
+        reward.setCooldownDays(7);
+
+        UserProfile userProfile = userProfile(1L, 100L, 3, 5);
+
+        RewardRedemption previousRedemption = new RewardRedemption();
+        previousRedemption.setId(40L);
+        previousRedemption.setReward(reward);
+        previousRedemption.setUserProfile(userProfile);
+        previousRedemption.setStatus(RewardRedemptionStatus.USED);
+        previousRedemption.setCostPaid(20L);
+        previousRedemption.setRedeemedAt(LocalDateTime.now().minusDays(2));
+
+        when(rewardRepository.findByIdAndEnabledTrue(10L))
+                .thenReturn(Optional.of(reward));
+
+        when(userProfileRepository.findByUserId(1L))
+                .thenReturn(Optional.of(userProfile));
+
+        when(rewardRedemptionRepository
+                .findTopByRewardIdAndUserProfileUserIdAndStatusInOrderByRedeemedAtDesc(
+                        eq(10L),
+                        eq(1L),
+                        anyCollection()
+                ))
+                .thenReturn(Optional.of(previousRedemption));
+
+        assertThatThrownBy(() -> rewardRedemptionService.redeemReward(10L, 1L))
+                .isInstanceOf(BusinessException.class);
+
+        assertThat(userProfile.getCorePoints()).isEqualTo(100L);
+
+        verify(rewardRedemptionRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("redeemReward debe permitir canjear si el cooldown ya terminó")
+    void redeemReward_shouldAllowRedeemWhenCooldownHasExpired() {
+        Reward reward = reward(10L, 20L);
+        reward.setCooldownDays(7);
+
+        UserProfile userProfile = userProfile(1L, 100L, 3, 5);
+
+        RewardRedemption previousRedemption = new RewardRedemption();
+        previousRedemption.setId(40L);
+        previousRedemption.setReward(reward);
+        previousRedemption.setUserProfile(userProfile);
+        previousRedemption.setStatus(RewardRedemptionStatus.USED);
+        previousRedemption.setCostPaid(20L);
+        previousRedemption.setRedeemedAt(LocalDateTime.now().minusDays(8));
+
+        when(rewardRepository.findByIdAndEnabledTrue(10L))
+                .thenReturn(Optional.of(reward));
+
+        when(userProfileRepository.findByUserId(1L))
+                .thenReturn(Optional.of(userProfile));
+
+        when(rewardRedemptionRepository
+                .findTopByRewardIdAndUserProfileUserIdAndStatusInOrderByRedeemedAtDesc(
+                        eq(10L),
+                        eq(1L),
+                        anyCollection()
+                ))
+                .thenReturn(Optional.of(previousRedemption));
+
+        when(rewardRedemptionRepository.save(any(RewardRedemption.class)))
+                .thenAnswer(invocation -> {
+                    RewardRedemption redemption = invocation.getArgument(0);
+                    redemption.setId(50L);
+                    return redemption;
+                });
+
+        RewardRedeemResponse result =
+                rewardRedemptionService.redeemReward(10L, 1L);
+
+        assertThat(result.getRedemptionId()).isEqualTo(50L);
+        assertThat(userProfile.getCorePoints()).isEqualTo(80L);
+
+        verify(rewardRedemptionRepository).save(any(RewardRedemption.class));
     }
 
     private Reward reward(Long id, Long costCorePoints) {

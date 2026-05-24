@@ -37,6 +37,9 @@ public class RewardRedemption extends BaseAuditableEntity {
     @Column(name = "redeemed_at", nullable = false)
     private LocalDateTime redeemedAt;
 
+    @Column(name = "expires_at")
+    private LocalDateTime expiresAt;
+
     @Column(name = "used_at")
     private LocalDateTime usedAt;
 

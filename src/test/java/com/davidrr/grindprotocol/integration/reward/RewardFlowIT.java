@@ -1,12 +1,12 @@
 package com.davidrr.grindprotocol.integration.reward;
 
 import com.davidrr.grindprotocol.integration.AbstractPostgresIT;
+import com.davidrr.grindprotocol.reward.enums.RewardCategory;
+import com.davidrr.grindprotocol.reward.enums.RewardType;
 import com.davidrr.grindprotocol.reward.model.Reward;
 import com.davidrr.grindprotocol.reward.model.RewardRedemption;
 import com.davidrr.grindprotocol.reward.repository.RewardRedemptionRepository;
 import com.davidrr.grindprotocol.reward.repository.RewardRepository;
-import com.davidrr.grindprotocol.reward.enums.RewardCategory;
-import com.davidrr.grindprotocol.reward.enums.RewardType;
 import com.davidrr.grindprotocol.user.model.User;
 import com.davidrr.grindprotocol.user.repository.UserRepository;
 import com.davidrr.grindprotocol.userprofile.model.UserProfile;
@@ -52,8 +52,8 @@ class RewardFlowIT extends AbstractPostgresIT {
     private UserProfileRepository userProfileRepository;
 
     @Test
-    @DisplayName("Flujo completo: ver rewards y canjear reward")
-    void fullFlow_shouldRedeemRewardAndSpendCorePoints() throws Exception {
+    @DisplayName("Flujo completo: ver rewards, canjear, usar y bloquear por cooldown")
+    void fullFlow_shouldRedeemUseRewardAndBlockCooldown() throws Exception {
 
         AuthContext auth = registerAndGetAuthContext();
 
@@ -66,11 +66,9 @@ class RewardFlowIT extends AbstractPostgresIT {
                 .orElseThrow();
 
         userProfile.setCorePoints(100L);
-
         userProfileRepository.save(userProfile);
 
         Reward reward = new Reward();
-
         reward.setName("2 horas de gaming");
         reward.setDescription("Tiempo para jugar videojuegos");
         reward.setType(RewardType.REAL);
@@ -78,6 +76,7 @@ class RewardFlowIT extends AbstractPostgresIT {
         reward.setCostCorePoints(20L);
         reward.setEnabled(true);
         reward.setRepeatable(true);
+        reward.setCooldownDays(7);
 
         Reward savedReward = rewardRepository.save(reward);
 
@@ -86,38 +85,66 @@ class RewardFlowIT extends AbstractPostgresIT {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].name").value("2 horas de gaming"))
-                .andExpect(jsonPath("$[0].costCorePoints").value(20));
+                .andExpect(jsonPath("$[0].costCorePoints").value(20))
+                .andExpect(jsonPath("$[0].cooldownDays").value(7));
 
-        mockMvc.perform(post("/me/rewards/{rewardId}/redeem", savedReward.getId())
+        MvcResult redeemResult = mockMvc.perform(post("/me/rewards/{rewardId}/redeem", savedReward.getId())
                         .header(HttpHeaders.AUTHORIZATION, bearer(auth.token())))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.rewardId").value(savedReward.getId()))
                 .andExpect(jsonPath("$.rewardName").value("2 horas de gaming"))
                 .andExpect(jsonPath("$.costPaid").value(20))
                 .andExpect(jsonPath("$.remainingCorePoints").value(80))
-                .andExpect(jsonPath("$.status").value("REDEEMED"));
+                .andExpect(jsonPath("$.status").value("REDEEMED"))
+                .andReturn();
 
-        UserProfile updatedProfile = userProfileRepository.findByUserId(userId)
+        JsonNode redeemJson = objectMapper.readTree(
+                redeemResult.getResponse().getContentAsString()
+        );
+
+        Long redemptionId = redeemJson.get("redemptionId").asLong();
+
+        UserProfile updatedProfileAfterRedeem = userProfileRepository.findByUserId(userId)
                 .orElseThrow();
 
-        assertThat(updatedProfile.getCorePoints()).isEqualTo(80L);
+        assertThat(updatedProfileAfterRedeem.getCorePoints()).isEqualTo(80L);
 
-        List<RewardRedemption> redemptions =
-                rewardRedemptionRepository.findAll();
+        mockMvc.perform(post("/me/rewards/redemptions/{redemptionId}/use", redemptionId)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(auth.token())))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(redemptionId))
+                .andExpect(jsonPath("$.rewardId").value(savedReward.getId()))
+                .andExpect(jsonPath("$.rewardName").value("2 horas de gaming"))
+                .andExpect(jsonPath("$.status").value("USED"))
+                .andExpect(jsonPath("$.usedAt").isNotEmpty());
+
+        RewardRedemption usedRedemption = rewardRedemptionRepository.findById(redemptionId)
+                .orElseThrow();
+
+        assertThat(usedRedemption.getStatus().name()).isEqualTo("USED");
+        assertThat(usedRedemption.getUsedAt()).isNotNull();
+
+        mockMvc.perform(post("/me/rewards/{rewardId}/redeem", savedReward.getId())
+                        .header(HttpHeaders.AUTHORIZATION, bearer(auth.token())))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("REWARD_COOLDOWN_ACTIVE"));
+
+        UserProfile updatedProfileAfterCooldownFail = userProfileRepository.findByUserId(userId)
+                .orElseThrow();
+
+        assertThat(updatedProfileAfterCooldownFail.getCorePoints()).isEqualTo(80L);
+
+        List<RewardRedemption> redemptions = rewardRedemptionRepository.findAll();
 
         assertThat(redemptions).hasSize(1);
 
         RewardRedemption redemption = redemptions.get(0);
 
-        assertThat(redemption.getReward().getId())
-                .isEqualTo(savedReward.getId());
-
-        assertThat(redemption.getUserProfile().getId())
-                .isEqualTo(userProfile.getId());
-
+        assertThat(redemption.getReward().getId()).isEqualTo(savedReward.getId());
+        assertThat(redemption.getUserProfile().getId()).isEqualTo(userProfile.getId());
         assertThat(redemption.getCostPaid()).isEqualTo(20L);
-
         assertThat(redemption.getRedeemedAt()).isNotNull();
+        assertThat(redemption.getUsedAt()).isNotNull();
     }
 
     private AuthContext registerAndGetAuthContext() throws Exception {
@@ -127,9 +154,7 @@ class RewardFlowIT extends AbstractPostgresIT {
                 .substring(0, 8);
 
         String username = "user_" + suffix;
-
         String email = username + "@test.com";
-
         String password = "Password123!";
 
         String requestBody = """

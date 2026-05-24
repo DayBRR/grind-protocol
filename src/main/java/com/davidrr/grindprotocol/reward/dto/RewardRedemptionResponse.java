@@ -28,6 +28,7 @@ public class RewardRedemptionResponse {
     private Long costPaid;
 
     private LocalDateTime redeemedAt;
+    private LocalDateTime expiresAt;
     private LocalDateTime usedAt;
     private LocalDateTime cancelledAt;
 
