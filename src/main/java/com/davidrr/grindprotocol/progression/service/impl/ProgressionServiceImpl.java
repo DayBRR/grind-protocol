@@ -52,4 +52,24 @@ public class ProgressionServiceImpl implements ProgressionService {
         userProfileRepository.save(profile);
     }
 
+    @Override
+    @Transactional
+    public void addProgressionRewards(UserProfile userProfile, Long xp, Long corePoints) {
+
+        userProfile.setTotalXp(
+                userProfile.getTotalXp() + xp
+        );
+
+        userProfile.setCorePoints(
+                userProfile.getCorePoints() + corePoints
+        );
+
+        userProfile.setLevel(
+                levelCalculator.calculateLevel(
+                        userProfile.getTotalXp()
+                )
+        );
+
+        userProfileRepository.save(userProfile);
+    }
 }
