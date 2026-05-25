@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.16](https://github.com/DayBRR/grind-protocol/compare/v0.1.15...v0.1.16) (2026-05-25)
+
+
+### Features
+
+* **achievement:** implement achievement system and rewards ([1fb2712](https://github.com/DayBRR/grind-protocol/commit/1fb271251f06e9fcfdc828e59f2138dc39044b65))
+* **achievement:** implement achievement system and rewards ([d1f6df5](https://github.com/DayBRR/grind-protocol/commit/d1f6df5e0aaac8a111c9f0dab80ce3e183991c5b))
+
 ## [0.1.15](https://github.com/DayBRR/grind-protocol/compare/v0.1.14...v0.1.15) (2026-05-24)
 
 
