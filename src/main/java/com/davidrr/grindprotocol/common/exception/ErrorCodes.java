@@ -82,4 +82,14 @@ public final class ErrorCodes {
         public static final String NOT_REPEATABLE = "REWARD_NOT_REPEATABLE";
         public static final String COOLDOWN_ACTIVE = "REWARD_COOLDOWN_ACTIVE";
     }
+
+    public static final class Achievement {
+        private Achievement() {
+            throw new AssertionError(ErrorMessages.NO_INSTANCES);
+        }
+
+        public static final String NOT_FOUND = "ACHIEVEMENT_NOT_FOUND";
+        public static final String NOT_UNLOCKED = "ACHIEVEMENT_NOT_UNLOCKED";
+        public static final String ALREADY_CLAIMED = "ACHIEVEMENT_ALREADY_CLAIMED";
+    }
 }

@@ -75,4 +75,13 @@ public final class ErrorMessages {
         public static final String NOT_REPEATABLE = "This reward is not repeatable.";
         public static final String COOLDOWN_ACTIVE = "Reward cooldown is still active.";
     }
+    public static final class Achievement {
+        private Achievement() {
+            throw new AssertionError(ErrorMessages.NO_INSTANCES);
+        }
+
+        public static final String NOT_FOUND = "Achievement not found.";
+        public static final String NOT_UNLOCKED = "Achievement is not unlocked.";
+        public static final String ALREADY_CLAIMED = "Achievement reward already claimed.";
+    }
 }
