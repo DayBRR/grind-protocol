@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -21,6 +22,7 @@ import java.time.LocalDate;
 @RequestMapping("/me/progression")
 @RequiredArgsConstructor
 @Tag(name = "Progression", description = "Endpoints para gestionar la progresión del usuario autenticado")
+@SecurityRequirement(name = "bearerAuth")
 public class ProgressionController {
 
     private final StreakService streakService;
