@@ -3,7 +3,6 @@ package com.davidrr.grindprotocol.security.auth.controller;
 import com.davidrr.security.auth.dto.*;
 import com.davidrr.security.auth.exception.RefreshTokenMissingException;
 import com.davidrr.security.auth.service.AuthService;
-import com.davidrr.security.auth.util.FingerprintUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -113,7 +112,9 @@ public class AuthController {
             ),
             @ApiResponse(responseCode = "401", description = "Refresh token ausente, inválido, expirado o reutilizado")
     })
-    public ResponseEntity<AuthResponse> refresh(HttpServletRequest request) {
+    public ResponseEntity<AuthResponse> refresh(
+            @Parameter(hidden = true) HttpServletRequest request
+    ) {
         String refreshToken = extractCookie(request);
 
         if (refreshToken == null || refreshToken.isBlank()) {
@@ -256,7 +257,7 @@ public class AuthController {
     })
     public ResponseEntity<AuthResponse> register(
             @RequestBody @Valid RegisterRequest request,
-            HttpServletRequest httpRequest
+            @Parameter(hidden = true) HttpServletRequest httpRequest
     ) {
         SessionFingerprint fingerprint = SessionFingerprint.from(httpRequest);
         AuthTokens tokens = authService.register(request, fingerprint);

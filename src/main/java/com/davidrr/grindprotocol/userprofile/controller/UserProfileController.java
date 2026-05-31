@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/me/profile")
 @RequiredArgsConstructor
 @Tag(name = "User Profile", description = "Endpoints para consultar y actualizar el perfil del usuario autenticado")
+@SecurityRequirement(name = "bearerAuth")
 public class UserProfileController {
 
     private final UserProfileService userProfileService;
