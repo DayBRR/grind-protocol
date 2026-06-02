@@ -84,4 +84,14 @@ public final class ErrorMessages {
         public static final String NOT_UNLOCKED = "Achievement is not unlocked.";
         public static final String ALREADY_CLAIMED = "Achievement reward already claimed.";
     }
+
+    public static final class Quest {
+        private Quest() {
+            throw new AssertionError(ErrorMessages.NO_INSTANCES);
+        }
+
+        public static final String NOT_FOUND = "Quest not found.";
+        public static final String NOT_COMPLETED = "Quest is not completed.";
+        public static final String ALREADY_CLAIMED = "Quest already claimed.";
+    }
 }

@@ -92,4 +92,14 @@ public final class ErrorCodes {
         public static final String NOT_UNLOCKED = "ACHIEVEMENT_NOT_UNLOCKED";
         public static final String ALREADY_CLAIMED = "ACHIEVEMENT_ALREADY_CLAIMED";
     }
+
+    public static final class Quest {
+        private Quest() {
+            throw new AssertionError(ErrorMessages.NO_INSTANCES);
+        }
+
+        public static final String NOT_FOUND = "QUEST_NOT_FOUND";
+        public static final String NOT_COMPLETED = "QUEST_NOT_COMPLETED";
+        public static final String ALREADY_CLAIMED = "QUEST_ALREADY_CLAIMED";
+    }
 }
