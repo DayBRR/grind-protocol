@@ -41,22 +41,6 @@ public class QuestController {
         return questService.getQuests(currentUser.getId());
     }
 
-    @PostMapping("/evaluate")
-    @Operation(
-            summary = "Evaluate quests",
-            description = "Triggers quest evaluation for the authenticated user's current active quest periods."
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Quests evaluated successfully"),
-            @ApiResponse(responseCode = "401", description = "Unauthenticated")
-    })
-    public void evaluateQuests(
-            @Parameter(hidden = true)
-            @AuthenticationPrincipal AuthenticatedUser currentUser
-    ) {
-        questService.evaluateQuests(currentUser.getId());
-    }
-
     @PostMapping("/{questId}/claim")
     @Operation(
             summary = "Claim quest reward",
