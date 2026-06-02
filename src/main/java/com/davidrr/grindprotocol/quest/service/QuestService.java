@@ -9,8 +9,6 @@ public interface QuestService {
 
     List<QuestResponse> getQuests(Long userId);
 
-    void evaluateQuests(Long userId);
-
     QuestClaimResponse claimQuest(Long questId, Long userId);
 
 }

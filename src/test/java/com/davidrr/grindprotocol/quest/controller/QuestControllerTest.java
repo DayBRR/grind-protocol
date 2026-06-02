@@ -33,19 +33,6 @@ class QuestControllerTest {
     }
 
     @Test
-    @DisplayName("evaluateQuests debe delegar en el service usando el usuario autenticado")
-    void evaluateQuests_shouldDelegateToService() {
-        QuestService questService = mock(QuestService.class);
-        QuestController controller = new QuestController(questService);
-
-        AuthenticatedUser currentUser = defaultUser();
-
-        controller.evaluateQuests(currentUser);
-
-        verify(questService).evaluateQuests(1L);
-    }
-
-    @Test
     @DisplayName("claimQuest debe delegar en el service usando questId y usuario autenticado")
     void claimQuest_shouldDelegateToService() {
         QuestService questService = mock(QuestService.class);

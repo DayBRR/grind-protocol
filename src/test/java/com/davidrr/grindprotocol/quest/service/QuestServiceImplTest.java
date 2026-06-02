@@ -67,14 +67,6 @@ class QuestServiceImplTest {
     }
 
     @Test
-    @DisplayName("evaluateQuests debe delegar en QuestEvaluationService")
-    void evaluateQuests_shouldDelegateToEvaluationService() {
-        questService.evaluateQuests(1L);
-
-        verify(questEvaluationService).evaluateQuests(1L);
-    }
-
-    @Test
     @DisplayName("claimQuest debe reclamar una quest completada y aplicar recompensas")
     void claimQuest_shouldClaimCompletedQuest() {
         Quest quest = quest(1L);

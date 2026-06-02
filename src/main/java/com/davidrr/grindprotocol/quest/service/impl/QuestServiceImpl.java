@@ -12,7 +12,6 @@ import com.davidrr.grindprotocol.quest.model.Quest;
 import com.davidrr.grindprotocol.quest.model.UserQuest;
 import com.davidrr.grindprotocol.quest.repository.QuestRepository;
 import com.davidrr.grindprotocol.quest.repository.UserQuestRepository;
-import com.davidrr.grindprotocol.quest.service.QuestEvaluationService;
 import com.davidrr.grindprotocol.quest.service.QuestPeriodResolver;
 import com.davidrr.grindprotocol.quest.service.QuestService;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +25,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class QuestServiceImpl implements QuestService {
-    private final QuestEvaluationService questEvaluationService;
+
     private final QuestRepository questRepository;
     private final UserQuestRepository userQuestRepository;
     private final QuestPeriodResolver questPeriodResolver;
@@ -64,11 +63,6 @@ public class QuestServiceImpl implements QuestService {
                     return questMapper.toResponse(quest, userQuest);
                 })
                 .toList();
-    }
-
-    @Override
-    public void evaluateQuests(Long userId) {
-        questEvaluationService.evaluateQuests(userId);
     }
 
     @Override
