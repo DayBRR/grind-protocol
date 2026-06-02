@@ -51,8 +51,8 @@ class AchievementFlowIT extends AbstractPostgresIT {
     private UserProfileRepository userProfileRepository;
 
     @Test
-    @DisplayName("Flujo completo: evaluar achievement, desbloquearlo y reclamar recompensa")
-    void fullFlow_shouldEvaluateUnlockAndClaimAchievement() throws Exception {
+    @DisplayName("Flujo completo: completar tarea, desbloquear achievement automáticamente y reclamar recompensa")
+    void fullFlow_shouldAutoEvaluateUnlockAndClaimAchievement() throws Exception {
         AuthContext auth = registerAndGetAuthContext();
 
         User user = userRepository.findByUsername(auth.username())
@@ -61,7 +61,7 @@ class AchievementFlowIT extends AbstractPostgresIT {
         UserProfile userProfile = userProfileRepository.findByUserId(user.getId())
                 .orElseThrow();
 
-        userProfile.setTotalXp(150L);
+        userProfile.setTotalXp(90L);
         userProfile.setCorePoints(10L);
         userProfileRepository.save(userProfile);
 
@@ -89,16 +89,16 @@ class AchievementFlowIT extends AbstractPostgresIT {
                 .andExpect(jsonPath("$[0].unlocked").value(false))
                 .andExpect(jsonPath("$[0].claimed").value(false));
 
-        mockMvc.perform(post("/me/achievements/evaluate")
-                        .header(HttpHeaders.AUTHORIZATION, bearer(auth.token())))
-                .andExpect(status().isOk());
+        long taskId = createTask(auth.token());
+
+        completeTask(auth.token(), taskId);
 
         mockMvc.perform(get("/me/achievements")
                         .header(HttpHeaders.AUTHORIZATION, bearer(auth.token())))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].achievementId").value(savedAchievement.getId()))
-                .andExpect(jsonPath("$[0].progressValue").value(150))
+                .andExpect(jsonPath("$[0].progressValue").value(110))
                 .andExpect(jsonPath("$[0].unlocked").value(true))
                 .andExpect(jsonPath("$[0].unlockedAt").isNotEmpty())
                 .andExpect(jsonPath("$[0].claimed").value(false));
@@ -116,8 +116,8 @@ class AchievementFlowIT extends AbstractPostgresIT {
         UserProfile updatedProfile = userProfileRepository.findByUserId(user.getId())
                 .orElseThrow();
 
-        assertThat(updatedProfile.getTotalXp()).isEqualTo(175L);
-        assertThat(updatedProfile.getCorePoints()).isEqualTo(15L);
+        assertThat(updatedProfile.getTotalXp()).isEqualTo(135L);
+        assertThat(updatedProfile.getCorePoints()).isEqualTo(17L);
 
         Optional<UserAchievement> userAchievementOpt =
                 userAchievementRepository.findByUserProfileUserIdAndAchievementId(
@@ -129,11 +129,55 @@ class AchievementFlowIT extends AbstractPostgresIT {
 
         UserAchievement userAchievement = userAchievementOpt.get();
 
-        assertThat(userAchievement.getProgressValue()).isEqualTo(150L);
+        assertThat(userAchievement.getProgressValue()).isEqualTo(110L);
         assertThat(userAchievement.getUnlocked()).isTrue();
         assertThat(userAchievement.getUnlockedAt()).isNotNull();
         assertThat(userAchievement.getClaimed()).isTrue();
         assertThat(userAchievement.getClaimedAt()).isNotNull();
+    }
+
+    private long createTask(String token) throws Exception {
+        MvcResult result = mockMvc.perform(post("/me/tasks")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(token))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "title": "Achievement auto evaluation task",
+                                  "description": "Task used to trigger achievement evaluation",
+                                  "category": "WORK",
+                                  "difficulty": "EASY",
+                                  "taskType": "DAILY",
+                                  "baseXp": 20,
+                                  "mandatory": false,
+                                  "streakEligible": true,
+                                  "repeatable": false,
+                                  "maxCompletionsPerDay": 1,
+                                  "diminishingReturnsEnabled": false,
+                                  "active": true,
+                                  "traitCodes": []
+                                }
+                                """))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").isNumber())
+                .andReturn();
+
+        JsonNode json = objectMapper.readTree(result.getResponse().getContentAsString());
+
+        return json.get("id").asLong();
+    }
+
+    private void completeTask(String token, long taskId) throws Exception {
+        mockMvc.perform(post("/me/task-completions")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(token))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "taskId": %d,
+                                  "notes": "Achievement auto evaluation completion"
+                                }
+                                """.formatted(taskId)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.taskId").value(taskId));
     }
 
     private AuthContext registerAndGetAuthContext() throws Exception {

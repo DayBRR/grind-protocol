@@ -1,14 +1,16 @@
 package com.davidrr.grindprotocol.task.service.impl;
 
+import com.davidrr.grindprotocol.achievement.service.AchievementEvaluationService;
 import com.davidrr.grindprotocol.common.exception.BusinessException;
 import com.davidrr.grindprotocol.common.exception.ErrorCodes;
 import com.davidrr.grindprotocol.common.exception.ErrorMessages;
 import com.davidrr.grindprotocol.common.exception.ResourceNotFoundException;
-import com.davidrr.grindprotocol.task.dto.CreateTaskCompletionRequest;
+import com.davidrr.grindprotocol.progression.service.ProgressionService;
+import com.davidrr.grindprotocol.progression.service.StreakService;
 import com.davidrr.grindprotocol.quest.service.QuestEvaluationService;
+import com.davidrr.grindprotocol.task.dto.CreateTaskCompletionRequest;
 import com.davidrr.grindprotocol.task.dto.DailyProgressResponse;
 import com.davidrr.grindprotocol.task.dto.TaskCompletionResponse;
-import com.davidrr.grindprotocol.progression.service.StreakService;
 import com.davidrr.grindprotocol.task.enums.CompletionSource;
 import com.davidrr.grindprotocol.task.mapper.TaskCompletionMapper;
 import com.davidrr.grindprotocol.task.model.Task;
@@ -16,7 +18,6 @@ import com.davidrr.grindprotocol.task.model.TaskCompletion;
 import com.davidrr.grindprotocol.task.repository.TaskCompletionRepository;
 import com.davidrr.grindprotocol.task.repository.TaskRepository;
 import com.davidrr.grindprotocol.task.service.DailyProgressService;
-import com.davidrr.grindprotocol.progression.service.ProgressionService;
 import com.davidrr.grindprotocol.task.service.TaskCompletionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,7 @@ public class TaskCompletionServiceImpl implements TaskCompletionService {
     private final ProgressionService progressionService;
     private final StreakService streakService;
     private final QuestEvaluationService questEvaluationService;
+    private final AchievementEvaluationService achievementEvaluationService;
     private final TaskCompletionMapper taskCompletionMapper;
 
     @Override
@@ -78,6 +80,7 @@ public class TaskCompletionServiceImpl implements TaskCompletionService {
         TaskCompletion saved = taskCompletionRepository.save(completion);
 
         DailyProgressResponse dailyProgress = dailyProgressService.recalculateDailyProgress(userId, completionDate);
+
         progressionService.applyTaskCompletionProgress(userId, saved);
 
         if (dailyProgress.isDayQualified()) {
@@ -85,6 +88,7 @@ public class TaskCompletionServiceImpl implements TaskCompletionService {
         }
 
         questEvaluationService.evaluateQuests(userId);
+        achievementEvaluationService.evaluateAchievements(userId);
 
         return taskCompletionMapper.toResponse(saved);
     }

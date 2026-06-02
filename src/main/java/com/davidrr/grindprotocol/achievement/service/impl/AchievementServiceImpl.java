@@ -7,7 +7,6 @@ import com.davidrr.grindprotocol.achievement.model.Achievement;
 import com.davidrr.grindprotocol.achievement.model.UserAchievement;
 import com.davidrr.grindprotocol.achievement.repository.AchievementRepository;
 import com.davidrr.grindprotocol.achievement.repository.UserAchievementRepository;
-import com.davidrr.grindprotocol.achievement.service.AchievementEvaluationService;
 import com.davidrr.grindprotocol.achievement.service.AchievementService;
 import com.davidrr.grindprotocol.common.exception.BusinessException;
 import com.davidrr.grindprotocol.common.exception.ErrorCodes;
@@ -30,7 +29,6 @@ public class AchievementServiceImpl implements AchievementService {
     private final AchievementRepository achievementRepository;
     private final UserAchievementRepository userAchievementRepository;
     private final AchievementMapper achievementMapper;
-    private final AchievementEvaluationService achievementEvaluationService;
     private final ProgressionService progressionService;
 
     @Override
@@ -56,11 +54,6 @@ public class AchievementServiceImpl implements AchievementService {
                         )
                 )
                 .toList();
-    }
-
-    @Override
-    public void evaluateAchievements(Long userId) {
-        achievementEvaluationService.evaluateAchievements(userId);
     }
 
     @Override

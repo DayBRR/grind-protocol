@@ -36,19 +36,6 @@ class AchievementControllerTest {
     }
 
     @Test
-    @DisplayName("evaluateAchievements debe delegar en el service usando el usuario autenticado")
-    void evaluateAchievements_shouldDelegateToService() {
-        AchievementService achievementService = mock(AchievementService.class);
-        AchievementController controller = new AchievementController(achievementService);
-
-        AuthenticatedUser currentUser = defaultUser();
-
-        controller.evaluateAchievements(currentUser);
-
-        verify(achievementService).evaluateAchievements(1L);
-    }
-
-    @Test
     @DisplayName("claimAchievement debe delegar en el service usando achievementId y usuario autenticado")
     void claimAchievement_shouldDelegateToService() {
         AchievementService achievementService = mock(AchievementService.class);
