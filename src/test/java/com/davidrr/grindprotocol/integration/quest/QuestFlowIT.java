@@ -43,7 +43,7 @@ class QuestFlowIT extends AbstractPostgresIT {
     @Autowired private UserProfileRepository userProfileRepository;
 
     @Test
-    @DisplayName("Flujo completo: crear quest, completar tareas, evaluar y reclamar recompensa")
+    @DisplayName("Flujo completo: crear quest, completar tareas, autoevaluar y reclamar recompensa")
     void fullFlow_shouldCompleteEvaluateAndClaimQuest() throws Exception {
         AuthContext auth = registerAndGetAuthContext();
 
@@ -82,10 +82,6 @@ class QuestFlowIT extends AbstractPostgresIT {
         completeTask(auth.token(), task1Id);
         completeTask(auth.token(), task2Id);
         completeTask(auth.token(), task3Id);
-
-        mockMvc.perform(post("/me/quests/evaluate")
-                        .header(HttpHeaders.AUTHORIZATION, bearer(auth.token())))
-                .andExpect(status().isOk());
 
         mockMvc.perform(get("/me/quests")
                         .header(HttpHeaders.AUTHORIZATION, bearer(auth.token())))

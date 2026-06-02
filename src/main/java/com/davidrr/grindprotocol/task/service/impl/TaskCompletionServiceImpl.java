@@ -5,6 +5,7 @@ import com.davidrr.grindprotocol.common.exception.ErrorCodes;
 import com.davidrr.grindprotocol.common.exception.ErrorMessages;
 import com.davidrr.grindprotocol.common.exception.ResourceNotFoundException;
 import com.davidrr.grindprotocol.task.dto.CreateTaskCompletionRequest;
+import com.davidrr.grindprotocol.quest.service.QuestEvaluationService;
 import com.davidrr.grindprotocol.task.dto.DailyProgressResponse;
 import com.davidrr.grindprotocol.task.dto.TaskCompletionResponse;
 import com.davidrr.grindprotocol.progression.service.StreakService;
@@ -35,6 +36,7 @@ public class TaskCompletionServiceImpl implements TaskCompletionService {
     private final DailyProgressService dailyProgressService;
     private final ProgressionService progressionService;
     private final StreakService streakService;
+    private final QuestEvaluationService questEvaluationService;
     private final TaskCompletionMapper taskCompletionMapper;
 
     @Override
@@ -81,6 +83,8 @@ public class TaskCompletionServiceImpl implements TaskCompletionService {
         if (dailyProgress.isDayQualified()) {
             streakService.finalizeDay(userId, completionDate);
         }
+
+        questEvaluationService.evaluateQuests(userId);
 
         return taskCompletionMapper.toResponse(saved);
     }

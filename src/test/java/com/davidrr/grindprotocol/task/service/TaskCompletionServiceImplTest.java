@@ -4,6 +4,7 @@ import com.davidrr.grindprotocol.common.exception.BusinessException;
 import com.davidrr.grindprotocol.common.exception.ResourceNotFoundException;
 import com.davidrr.grindprotocol.progression.service.ProgressionService;
 import com.davidrr.grindprotocol.progression.service.StreakService;
+import com.davidrr.grindprotocol.quest.service.QuestEvaluationService;
 import com.davidrr.grindprotocol.task.dto.CreateTaskCompletionRequest;
 import com.davidrr.grindprotocol.task.dto.DailyProgressResponse;
 import com.davidrr.grindprotocol.task.dto.TaskCompletionResponse;
@@ -49,6 +50,8 @@ class TaskCompletionServiceImplTest {
     private ProgressionService progressionService;
     @Mock
     private StreakService streakService;
+    @Mock
+    private QuestEvaluationService questEvaluationService;
 
     @InjectMocks
     private TaskCompletionServiceImpl taskCompletionService;
@@ -111,6 +114,7 @@ class TaskCompletionServiceImplTest {
 
         verify(dailyProgressService).recalculateDailyProgress(eq(1L), any(LocalDate.class));
         verify(progressionService).applyTaskCompletionProgress(eq(1L), any(TaskCompletion.class));
+        verify(questEvaluationService).evaluateQuests(1L);
         verify(streakService, never()).finalizeDay(anyLong(), any(LocalDate.class));
         assertThat(result).isSameAs(response);
     }
@@ -146,6 +150,7 @@ class TaskCompletionServiceImplTest {
         assertThat(saved.isCountedForStreak()).isFalse();
         assertThat(saved.getAwardedXp()).isEqualTo(10);
         assertThat(saved.getAwardedCorePoints()).isEqualTo(1);
+        verify(questEvaluationService).evaluateQuests(1L);
     }
 
     @Test
@@ -170,6 +175,7 @@ class TaskCompletionServiceImplTest {
         taskCompletionService.completeTask(1L, request);
 
         verify(streakService).finalizeDay(eq(1L), any(LocalDate.class));
+        verify(questEvaluationService).evaluateQuests(1L);
     }
 
     @Test
@@ -188,6 +194,7 @@ class TaskCompletionServiceImplTest {
         taskCompletionService.completeTask(1L, request);
 
         verify(streakService, never()).finalizeDay(anyLong(), any(LocalDate.class));
+        verify(questEvaluationService).evaluateQuests(1L);
     }
 
     @Test
@@ -202,6 +209,7 @@ class TaskCompletionServiceImplTest {
 
         verify(taskCompletionRepository, never()).save(any());
         verify(dailyProgressService, never()).recalculateDailyProgress(anyLong(), any());
+        verify(questEvaluationService, never()).evaluateQuests(anyLong());
     }
 
     @Test
@@ -217,6 +225,7 @@ class TaskCompletionServiceImplTest {
                 .isInstanceOf(ResourceNotFoundException.class);
 
         verify(taskCompletionRepository, never()).save(any());
+        verify(questEvaluationService, never()).evaluateQuests(anyLong());
     }
 
     @Test
@@ -231,6 +240,7 @@ class TaskCompletionServiceImplTest {
                 .isInstanceOf(BusinessException.class);
 
         verify(taskCompletionRepository, never()).save(any());
+        verify(questEvaluationService, never()).evaluateQuests(anyLong());
     }
 
     @Test
@@ -248,6 +258,7 @@ class TaskCompletionServiceImplTest {
                 .isInstanceOf(BusinessException.class);
 
         verify(taskCompletionRepository, never()).save(any());
+        verify(questEvaluationService, never()).evaluateQuests(anyLong());
     }
 
     @Test
@@ -268,6 +279,7 @@ class TaskCompletionServiceImplTest {
                 .isInstanceOf(BusinessException.class);
 
         verify(taskCompletionRepository, never()).save(any());
+        verify(questEvaluationService, never()).evaluateQuests(anyLong());
     }
 
     @Test
