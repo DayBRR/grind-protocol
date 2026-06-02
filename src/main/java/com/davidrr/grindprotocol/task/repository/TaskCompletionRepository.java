@@ -19,4 +19,10 @@ public interface TaskCompletionRepository extends JpaRepository<TaskCompletion, 
     );
 
     long countByUserIdAndCompletionDate(Long userId, LocalDate completionDate);
+
+    long countByUserIdAndCompletionDateBetween(
+            Long userId,
+            LocalDate startDate,
+            LocalDate endDate
+    );
 }
