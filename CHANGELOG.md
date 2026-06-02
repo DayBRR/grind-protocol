@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.17](https://github.com/DayBRR/grind-protocol/compare/v0.1.16...v0.1.17) (2026-06-02)
+
+
+### Features
+
+* **quest:** evaluate quests automatically on task completion ([13bd391](https://github.com/DayBRR/grind-protocol/commit/13bd3914e25d630735ca6965ca0898f3b9c7ee04))
+* **quest:** evaluate quests automatically on task completion ([973b94c](https://github.com/DayBRR/grind-protocol/commit/973b94c2a1935ef79f2611b0e10a3523fb6de7b4))
+* **quest:** implement quest system and reward claiming ([da28157](https://github.com/DayBRR/grind-protocol/commit/da281578a12e970f877193f5a47abb5f8b2fe241))
+* **quest:** implement quest system and reward claiming ([3cfa613](https://github.com/DayBRR/grind-protocol/commit/3cfa61394c5b41179ea7bb1d2ae705a4dad084ef))
+
 ## [0.1.16](https://github.com/DayBRR/grind-protocol/compare/v0.1.15...v0.1.16) (2026-05-25)
 
 
