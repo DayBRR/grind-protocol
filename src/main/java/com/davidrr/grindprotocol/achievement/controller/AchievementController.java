@@ -41,22 +41,6 @@ public class AchievementController {
         );
     }
 
-    @PostMapping("/evaluate")
-    @Operation(
-            summary = "Evaluate achievements",
-            description = "Triggers achievement evaluation for the authenticated user."
-    )
-    public void evaluateAchievements(
-            @Parameter(hidden = true)
-            @AuthenticationPrincipal
-            AuthenticatedUser currentUser
-    ) {
-
-        achievementService.evaluateAchievements(
-                currentUser.getId()
-        );
-    }
-
     @PostMapping("/{achievementId}/claim")
     @Operation(
             summary = "Claim achievement reward",

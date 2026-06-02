@@ -9,8 +9,6 @@ public interface AchievementService {
 
     List<AchievementResponse> getAchievements(Long userId);
 
-    void evaluateAchievements(Long userId);
-
     AchievementClaimResponse claimAchievement(
             Long achievementId,
             Long userId

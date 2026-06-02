@@ -1,5 +1,6 @@
 package com.davidrr.grindprotocol.task.service;
 
+import com.davidrr.grindprotocol.achievement.service.AchievementEvaluationService;
 import com.davidrr.grindprotocol.common.exception.BusinessException;
 import com.davidrr.grindprotocol.common.exception.ResourceNotFoundException;
 import com.davidrr.grindprotocol.progression.service.ProgressionService;
@@ -52,6 +53,8 @@ class TaskCompletionServiceImplTest {
     private StreakService streakService;
     @Mock
     private QuestEvaluationService questEvaluationService;
+    @Mock
+    private AchievementEvaluationService achievementEvaluationService;
 
     @InjectMocks
     private TaskCompletionServiceImpl taskCompletionService;
@@ -114,8 +117,9 @@ class TaskCompletionServiceImplTest {
 
         verify(dailyProgressService).recalculateDailyProgress(eq(1L), any(LocalDate.class));
         verify(progressionService).applyTaskCompletionProgress(eq(1L), any(TaskCompletion.class));
-        verify(questEvaluationService).evaluateQuests(1L);
         verify(streakService, never()).finalizeDay(anyLong(), any(LocalDate.class));
+        verify(questEvaluationService).evaluateQuests(1L);
+        verify(achievementEvaluationService).evaluateAchievements(1L);
         assertThat(result).isSameAs(response);
     }
 
@@ -150,7 +154,9 @@ class TaskCompletionServiceImplTest {
         assertThat(saved.isCountedForStreak()).isFalse();
         assertThat(saved.getAwardedXp()).isEqualTo(10);
         assertThat(saved.getAwardedCorePoints()).isEqualTo(1);
+
         verify(questEvaluationService).evaluateQuests(1L);
+        verify(achievementEvaluationService).evaluateAchievements(1L);
     }
 
     @Test
@@ -176,6 +182,7 @@ class TaskCompletionServiceImplTest {
 
         verify(streakService).finalizeDay(eq(1L), any(LocalDate.class));
         verify(questEvaluationService).evaluateQuests(1L);
+        verify(achievementEvaluationService).evaluateAchievements(1L);
     }
 
     @Test
@@ -195,6 +202,7 @@ class TaskCompletionServiceImplTest {
 
         verify(streakService, never()).finalizeDay(anyLong(), any(LocalDate.class));
         verify(questEvaluationService).evaluateQuests(1L);
+        verify(achievementEvaluationService).evaluateAchievements(1L);
     }
 
     @Test
@@ -209,7 +217,8 @@ class TaskCompletionServiceImplTest {
 
         verify(taskCompletionRepository, never()).save(any());
         verify(dailyProgressService, never()).recalculateDailyProgress(anyLong(), any());
-        verify(questEvaluationService, never()).evaluateQuests(anyLong());
+        verifyNoInteractions(questEvaluationService);
+        verifyNoInteractions(achievementEvaluationService);
     }
 
     @Test
@@ -225,7 +234,8 @@ class TaskCompletionServiceImplTest {
                 .isInstanceOf(ResourceNotFoundException.class);
 
         verify(taskCompletionRepository, never()).save(any());
-        verify(questEvaluationService, never()).evaluateQuests(anyLong());
+        verifyNoInteractions(questEvaluationService);
+        verifyNoInteractions(achievementEvaluationService);
     }
 
     @Test
@@ -240,7 +250,8 @@ class TaskCompletionServiceImplTest {
                 .isInstanceOf(BusinessException.class);
 
         verify(taskCompletionRepository, never()).save(any());
-        verify(questEvaluationService, never()).evaluateQuests(anyLong());
+        verifyNoInteractions(questEvaluationService);
+        verifyNoInteractions(achievementEvaluationService);
     }
 
     @Test
@@ -258,7 +269,8 @@ class TaskCompletionServiceImplTest {
                 .isInstanceOf(BusinessException.class);
 
         verify(taskCompletionRepository, never()).save(any());
-        verify(questEvaluationService, never()).evaluateQuests(anyLong());
+        verifyNoInteractions(questEvaluationService);
+        verifyNoInteractions(achievementEvaluationService);
     }
 
     @Test
@@ -279,7 +291,8 @@ class TaskCompletionServiceImplTest {
                 .isInstanceOf(BusinessException.class);
 
         verify(taskCompletionRepository, never()).save(any());
-        verify(questEvaluationService, never()).evaluateQuests(anyLong());
+        verifyNoInteractions(questEvaluationService);
+        verifyNoInteractions(achievementEvaluationService);
     }
 
     @Test

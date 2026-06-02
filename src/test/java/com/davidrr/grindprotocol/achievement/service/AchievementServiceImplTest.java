@@ -83,14 +83,6 @@ class AchievementServiceImplTest {
     }
 
     @Test
-    @DisplayName("evaluateAchievements debe delegar en AchievementEvaluationService")
-    void evaluateAchievements_shouldDelegateToEvaluationService() {
-        achievementService.evaluateAchievements(1L);
-
-        verify(achievementEvaluationService).evaluateAchievements(1L);
-    }
-
-    @Test
     @DisplayName("claimAchievement debe reclamar un achievement desbloqueado")
     void claimAchievement_shouldClaimUnlockedAchievement() {
         Achievement achievement = achievement(4L, "TOTAL_XP_100", AchievementType.TOTAL_XP, 100L);
