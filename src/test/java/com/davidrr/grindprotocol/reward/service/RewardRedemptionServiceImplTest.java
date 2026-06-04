@@ -1,5 +1,6 @@
 package com.davidrr.grindprotocol.reward.service;
 
+import com.davidrr.grindprotocol.activity.service.UserActivityEventService;
 import com.davidrr.grindprotocol.common.exception.BusinessException;
 import com.davidrr.grindprotocol.reward.dto.RewardRedeemResponse;
 import com.davidrr.grindprotocol.reward.dto.RewardRedemptionResponse;
@@ -47,6 +48,8 @@ class RewardRedemptionServiceImplTest {
     @Mock
     private RewardMapper rewardMapper;
 
+    @Mock
+    private UserActivityEventService userActivityEventService;
 
     @Test
     @DisplayName("redeemReward debe descontar Core Points y crear redemption")
@@ -95,6 +98,7 @@ class RewardRedemptionServiceImplTest {
         verify(rewardRepository).findByIdAndEnabledTrue(10L);
         verify(userProfileRepository).findByUserId(1L);
         verify(rewardRedemptionRepository).save(any(RewardRedemption.class));
+        verify(userActivityEventService).recordRewardRedeemed(saved);
     }
 
     @Test
@@ -231,6 +235,7 @@ class RewardRedemptionServiceImplTest {
         verify(rewardRedemptionRepository).findByIdAndUserProfileUserId(50L, 1L);
         verify(rewardRedemptionRepository).save(redemption);
         verify(rewardMapper).toRedemptionResponse(redemption);
+        verify(userActivityEventService).recordRewardUsed(redemption);
     }
 
     @Test
@@ -335,6 +340,7 @@ class RewardRedemptionServiceImplTest {
         assertThat(userProfile.getCorePoints()).isEqualTo(80L);
 
         verify(rewardRedemptionRepository).save(any(RewardRedemption.class));
+        verify(userActivityEventService).recordRewardRedeemed(any(RewardRedemption.class));
     }
 
     @Test
@@ -419,6 +425,7 @@ class RewardRedemptionServiceImplTest {
         assertThat(userProfile.getCorePoints()).isEqualTo(80L);
 
         verify(rewardRedemptionRepository).save(any(RewardRedemption.class));
+        verify(userActivityEventService).recordRewardRedeemed(any(RewardRedemption.class));
     }
 
     private Reward reward(Long id, Long costCorePoints) {

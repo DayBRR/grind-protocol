@@ -1,5 +1,6 @@
 package com.davidrr.grindprotocol.quest.service.impl;
 
+import com.davidrr.grindprotocol.activity.service.UserActivityEventService;
 import com.davidrr.grindprotocol.common.exception.BusinessException;
 import com.davidrr.grindprotocol.common.exception.ErrorCodes;
 import com.davidrr.grindprotocol.common.exception.ErrorMessages;
@@ -31,6 +32,7 @@ public class QuestServiceImpl implements QuestService {
     private final QuestPeriodResolver questPeriodResolver;
     private final QuestMapper questMapper;
     private final ProgressionService progressionService;
+    private final UserActivityEventService userActivityEventService;
 
     @Override
     public List<QuestResponse> getQuests(Long userId) {
@@ -121,8 +123,9 @@ public class QuestServiceImpl implements QuestService {
         userQuest.setStatus(QuestStatus.CLAIMED);
         userQuest.setClaimedAt(LocalDateTime.now());
 
-        userQuestRepository.save(userQuest);
+        UserQuest savedUserQuest = userQuestRepository.save(userQuest);
+        userActivityEventService.recordQuestClaimed(savedUserQuest);
 
-        return questMapper.toClaimResponse(userQuest);
+        return questMapper.toClaimResponse(savedUserQuest);
     }
 }

@@ -1,5 +1,6 @@
 package com.davidrr.grindprotocol.quest.service;
 
+import com.davidrr.grindprotocol.activity.service.UserActivityEventService;
 import com.davidrr.grindprotocol.common.exception.BusinessException;
 import com.davidrr.grindprotocol.progression.service.ProgressionService;
 import com.davidrr.grindprotocol.quest.dto.QuestClaimResponse;
@@ -38,6 +39,7 @@ class QuestServiceImplTest {
     @Mock private QuestEvaluationService questEvaluationService;
     @Mock private QuestMapper questMapper;
     @Mock private ProgressionService progressionService;
+    @Mock private UserActivityEventService userActivityEventService;
 
     @InjectMocks
     private QuestServiceImpl questService;
@@ -82,6 +84,7 @@ class QuestServiceImplTest {
         when(userQuestRepository.findByUserProfileUserIdAndQuestIdAndPeriodStartAndPeriodEnd(
                 1L, 1L, today, today
         )).thenReturn(Optional.of(userQuest));
+        when(userQuestRepository.save(userQuest)).thenReturn(userQuest);
         when(questMapper.toClaimResponse(userQuest)).thenReturn(response);
 
         QuestClaimResponse result = questService.claimQuest(1L, 1L);
@@ -92,6 +95,7 @@ class QuestServiceImplTest {
 
         verify(progressionService).addProgressionRewards(userProfile, 50L, 5L);
         verify(userQuestRepository).save(userQuest);
+        verify(userActivityEventService).recordQuestClaimed(userQuest);
         verify(questMapper).toClaimResponse(userQuest);
     }
 

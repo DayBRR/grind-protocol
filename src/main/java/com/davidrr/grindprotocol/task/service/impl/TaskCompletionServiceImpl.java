@@ -1,6 +1,7 @@
 package com.davidrr.grindprotocol.task.service.impl;
 
 import com.davidrr.grindprotocol.achievement.service.AchievementEvaluationService;
+import com.davidrr.grindprotocol.activity.service.UserActivityEventService;
 import com.davidrr.grindprotocol.common.exception.BusinessException;
 import com.davidrr.grindprotocol.common.exception.ErrorCodes;
 import com.davidrr.grindprotocol.common.exception.ErrorMessages;
@@ -40,6 +41,7 @@ public class TaskCompletionServiceImpl implements TaskCompletionService {
     private final QuestEvaluationService questEvaluationService;
     private final AchievementEvaluationService achievementEvaluationService;
     private final TaskCompletionMapper taskCompletionMapper;
+    private final UserActivityEventService userActivityEventService;
 
     @Override
     @Transactional
@@ -82,6 +84,7 @@ public class TaskCompletionServiceImpl implements TaskCompletionService {
         DailyProgressResponse dailyProgress = dailyProgressService.recalculateDailyProgress(userId, completionDate);
 
         progressionService.applyTaskCompletionProgress(userId, saved);
+        userActivityEventService.recordTaskCompleted(saved);
 
         if (dailyProgress.isDayQualified()) {
             streakService.finalizeDay(userId, completionDate);

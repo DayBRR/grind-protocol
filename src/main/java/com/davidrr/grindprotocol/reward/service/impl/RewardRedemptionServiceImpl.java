@@ -1,5 +1,6 @@
 package com.davidrr.grindprotocol.reward.service.impl;
 
+import com.davidrr.grindprotocol.activity.service.UserActivityEventService;
 import com.davidrr.grindprotocol.common.exception.BusinessException;
 import com.davidrr.grindprotocol.common.exception.ErrorCodes;
 import com.davidrr.grindprotocol.common.exception.ErrorMessages;
@@ -16,7 +17,6 @@ import com.davidrr.grindprotocol.userprofile.model.UserProfile;
 import com.davidrr.grindprotocol.userprofile.repository.UserProfileRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -31,6 +31,7 @@ public class RewardRedemptionServiceImpl implements RewardRedemptionService {
     private final RewardRedemptionRepository rewardRedemptionRepository;
     private final UserProfileRepository userProfileRepository;
     private final RewardMapper rewardMapper;
+    private final UserActivityEventService userActivityEventService;
 
     @Override
     @Transactional
@@ -69,6 +70,7 @@ public class RewardRedemptionServiceImpl implements RewardRedemptionService {
 
         RewardRedemption savedRedemption =
                 rewardRedemptionRepository.save(redemption);
+        userActivityEventService.recordRewardRedeemed(savedRedemption);
 
         return RewardRedeemResponse.builder()
                 .redemptionId(savedRedemption.getId())
@@ -136,6 +138,7 @@ public class RewardRedemptionServiceImpl implements RewardRedemptionService {
         redemption.setUsedAt(LocalDateTime.now());
 
         RewardRedemption savedRedemption = rewardRedemptionRepository.save(redemption);
+        userActivityEventService.recordRewardUsed(savedRedemption);
 
         return rewardMapper.toRedemptionResponse(savedRedemption);
     }

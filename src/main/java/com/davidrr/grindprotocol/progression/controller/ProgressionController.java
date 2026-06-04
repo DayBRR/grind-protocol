@@ -1,5 +1,7 @@
 package com.davidrr.grindprotocol.progression.controller;
 
+import com.davidrr.grindprotocol.activity.dto.WeeklyProgressionSummaryResponse;
+import com.davidrr.grindprotocol.activity.service.UserActivityEventService;
 import com.davidrr.grindprotocol.progression.dto.ProgressionSummaryResponse;
 import com.davidrr.grindprotocol.progression.service.ProgressionSummaryService;
 import com.davidrr.grindprotocol.progression.service.StreakService;
@@ -27,6 +29,7 @@ public class ProgressionController {
 
     private final StreakService streakService;
     private final ProgressionSummaryService progressionSummaryService;
+    private final UserActivityEventService userActivityEventService;
 
     @PostMapping("/finalize-day")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -94,4 +97,40 @@ public class ProgressionController {
     ) {
         return progressionSummaryService.getSummary(currentUser.getId());
     }
+
+
+    @GetMapping("/weekly-summary")
+    @Operation(
+            summary = "Obtener resumen semanal de progresión",
+            description = """
+                    Devuelve el XP y Core Points generados durante la semana del usuario autenticado.
+
+                    Si no se informa la fecha, se utiliza la fecha actual.
+
+                    La semana se calcula de lunes a domingo e incluye:
+                    - XP total de la semana.
+                    - XP total de la semana anterior.
+                    - Porcentaje de variación.
+                    - Desglose diario de XP, Core Points y actividad.
+                    """
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Resumen semanal obtenido correctamente"),
+            @ApiResponse(responseCode = "401", description = "No autenticado")
+    })
+    public WeeklyProgressionSummaryResponse getWeeklySummary(
+            @Parameter(hidden = true)
+            @AuthenticationPrincipal AuthenticatedUser currentUser,
+
+            @Parameter(
+                    description = "Fecha de referencia para calcular la semana. Si se omite, se usa la fecha actual.",
+                    example = "2026-06-04"
+            )
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate date
+    ) {
+        return userActivityEventService.getWeeklySummary(currentUser.getId(), date);
+    }
+
 }

@@ -8,6 +8,7 @@ import com.davidrr.grindprotocol.achievement.model.UserAchievement;
 import com.davidrr.grindprotocol.achievement.repository.AchievementRepository;
 import com.davidrr.grindprotocol.achievement.repository.UserAchievementRepository;
 import com.davidrr.grindprotocol.achievement.service.AchievementService;
+import com.davidrr.grindprotocol.activity.service.UserActivityEventService;
 import com.davidrr.grindprotocol.common.exception.BusinessException;
 import com.davidrr.grindprotocol.common.exception.ErrorCodes;
 import com.davidrr.grindprotocol.common.exception.ErrorMessages;
@@ -30,6 +31,7 @@ public class AchievementServiceImpl implements AchievementService {
     private final UserAchievementRepository userAchievementRepository;
     private final AchievementMapper achievementMapper;
     private final ProgressionService progressionService;
+    private final UserActivityEventService userActivityEventService;
 
     @Override
     public List<AchievementResponse> getAchievements(Long userId) {
@@ -102,7 +104,8 @@ public class AchievementServiceImpl implements AchievementService {
         userAchievement.setClaimed(true);
         userAchievement.setClaimedAt(LocalDateTime.now());
 
-        userAchievementRepository.save(userAchievement);
+        UserAchievement savedUserAchievement = userAchievementRepository.save(userAchievement);
+        userActivityEventService.recordAchievementClaimed(savedUserAchievement);
 
         return AchievementClaimResponse.builder()
                 .achievementId(achievement.getId())
