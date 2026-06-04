@@ -9,6 +9,7 @@ import com.davidrr.grindprotocol.achievement.model.UserAchievement;
 import com.davidrr.grindprotocol.achievement.repository.AchievementRepository;
 import com.davidrr.grindprotocol.achievement.repository.UserAchievementRepository;
 import com.davidrr.grindprotocol.achievement.service.impl.AchievementServiceImpl;
+import com.davidrr.grindprotocol.activity.service.UserActivityEventService;
 import com.davidrr.grindprotocol.common.exception.BusinessException;
 import com.davidrr.grindprotocol.progression.service.ProgressionService;
 import com.davidrr.grindprotocol.user.model.User;
@@ -43,6 +44,9 @@ class AchievementServiceImplTest {
 
     @Mock
     private ProgressionService progressionService;
+
+    @Mock
+    private UserActivityEventService userActivityEventService;
 
     @InjectMocks
     private AchievementServiceImpl achievementService;
@@ -98,6 +102,7 @@ class AchievementServiceImplTest {
 
         when(userAchievementRepository.findByUserProfileUserIdAndAchievementId(1L, 4L))
                 .thenReturn(Optional.of(userAchievement));
+        when(userAchievementRepository.save(userAchievement)).thenReturn(userAchievement);
 
         AchievementClaimResponse result =
                 achievementService.claimAchievement(4L, 1L);
@@ -119,6 +124,7 @@ class AchievementServiceImplTest {
         );
 
         verify(userAchievementRepository).save(userAchievement);
+        verify(userActivityEventService).recordAchievementClaimed(userAchievement);
     }
 
     @Test

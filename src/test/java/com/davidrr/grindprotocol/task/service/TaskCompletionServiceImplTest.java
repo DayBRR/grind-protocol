@@ -1,6 +1,7 @@
 package com.davidrr.grindprotocol.task.service;
 
 import com.davidrr.grindprotocol.achievement.service.AchievementEvaluationService;
+import com.davidrr.grindprotocol.activity.service.UserActivityEventService;
 import com.davidrr.grindprotocol.common.exception.BusinessException;
 import com.davidrr.grindprotocol.common.exception.ResourceNotFoundException;
 import com.davidrr.grindprotocol.progression.service.ProgressionService;
@@ -55,6 +56,8 @@ class TaskCompletionServiceImplTest {
     private QuestEvaluationService questEvaluationService;
     @Mock
     private AchievementEvaluationService achievementEvaluationService;
+    @Mock
+    private UserActivityEventService userActivityEventService;
 
     @InjectMocks
     private TaskCompletionServiceImpl taskCompletionService;
@@ -117,6 +120,7 @@ class TaskCompletionServiceImplTest {
 
         verify(dailyProgressService).recalculateDailyProgress(eq(1L), any(LocalDate.class));
         verify(progressionService).applyTaskCompletionProgress(eq(1L), any(TaskCompletion.class));
+        verify(userActivityEventService).recordTaskCompleted(any(TaskCompletion.class));
         verify(streakService, never()).finalizeDay(anyLong(), any(LocalDate.class));
         verify(questEvaluationService).evaluateQuests(1L);
         verify(achievementEvaluationService).evaluateAchievements(1L);
@@ -157,6 +161,7 @@ class TaskCompletionServiceImplTest {
 
         verify(questEvaluationService).evaluateQuests(1L);
         verify(achievementEvaluationService).evaluateAchievements(1L);
+        verify(userActivityEventService).recordTaskCompleted(any(TaskCompletion.class));
     }
 
     @Test
