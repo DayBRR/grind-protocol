@@ -1,9 +1,11 @@
 package com.davidrr.grindprotocol.task.controller;
 
 import com.davidrr.grindprotocol.security.model.AuthenticatedUser;
+import com.davidrr.grindprotocol.task.dto.CategoryFocusResponse;
 import com.davidrr.grindprotocol.task.dto.CreateTaskFromTemplateRequest;
 import com.davidrr.grindprotocol.task.dto.CreateTaskRequest;
 import com.davidrr.grindprotocol.task.dto.TaskResponse;
+import com.davidrr.grindprotocol.task.enums.CategoryFocusPeriod;
 import com.davidrr.grindprotocol.task.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -125,6 +127,31 @@ public class TaskController {
             @AuthenticationPrincipal AuthenticatedUser currentUser
     ) {
         return taskService.getActiveTasksByUser(currentUser.getId());
+    }
+
+
+    @GetMapping("/category-focus")
+    @Operation(
+            summary = "Obtener foco por categoría",
+            description = "Devuelve el reparto de tareas completadas, XP y Core Points por categoría para alimentar el radar del dashboard."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Foco por categoría obtenido correctamente",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = CategoryFocusResponse.class)
+                    )
+            ),
+            @ApiResponse(responseCode = "401", description = "No autenticado")
+    })
+    public CategoryFocusResponse getCategoryFocus(
+            @Parameter(hidden = true)
+            @AuthenticationPrincipal AuthenticatedUser currentUser,
+            @RequestParam(defaultValue = "WEEK") CategoryFocusPeriod period
+    ) {
+        return taskService.getCategoryFocus(currentUser.getId(), period);
     }
 
     @GetMapping("/{taskId}")

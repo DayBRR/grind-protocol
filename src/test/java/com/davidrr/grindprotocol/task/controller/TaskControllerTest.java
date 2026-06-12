@@ -1,9 +1,11 @@
 package com.davidrr.grindprotocol.task.controller;
 
 import com.davidrr.grindprotocol.security.model.AuthenticatedUser;
+import com.davidrr.grindprotocol.task.dto.CategoryFocusResponse;
 import com.davidrr.grindprotocol.task.dto.CreateTaskFromTemplateRequest;
 import com.davidrr.grindprotocol.task.dto.CreateTaskRequest;
 import com.davidrr.grindprotocol.task.dto.TaskResponse;
+import com.davidrr.grindprotocol.task.enums.CategoryFocusPeriod;
 import com.davidrr.grindprotocol.task.service.TaskService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -49,6 +51,24 @@ class TaskControllerTest {
 
         assertThat(result).containsExactly(response);
         verify(taskService).getActiveTasksByUser(1L);
+    }
+
+
+    @Test
+    @DisplayName("getCategoryFocus debe delegar en el service")
+    void getCategoryFocus_shouldDelegateToService() {
+        TaskService taskService = mock(TaskService.class);
+        TaskController controller = new TaskController(taskService);
+
+        AuthenticatedUser currentUser = defaultUser();
+        CategoryFocusResponse response = mock(CategoryFocusResponse.class);
+
+        when(taskService.getCategoryFocus(1L, CategoryFocusPeriod.WEEK)).thenReturn(response);
+
+        CategoryFocusResponse result = controller.getCategoryFocus(currentUser, CategoryFocusPeriod.WEEK);
+
+        assertThat(result).isSameAs(response);
+        verify(taskService).getCategoryFocus(1L, CategoryFocusPeriod.WEEK);
     }
 
     @Test

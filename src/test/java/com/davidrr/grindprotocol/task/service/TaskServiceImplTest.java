@@ -2,13 +2,17 @@ package com.davidrr.grindprotocol.task.service;
 
 import com.davidrr.grindprotocol.common.exception.BusinessException;
 import com.davidrr.grindprotocol.common.exception.ResourceNotFoundException;
+import com.davidrr.grindprotocol.task.dto.CategoryFocusResponse;
 import com.davidrr.grindprotocol.task.dto.CreateTaskFromTemplateRequest;
 import com.davidrr.grindprotocol.task.dto.CreateTaskRequest;
 import com.davidrr.grindprotocol.task.dto.TaskResponse;
+import com.davidrr.grindprotocol.task.enums.CategoryFocusPeriod;
+import com.davidrr.grindprotocol.task.enums.TaskCategory;
 import com.davidrr.grindprotocol.task.mapper.TaskMapper;
 import com.davidrr.grindprotocol.task.model.Task;
 import com.davidrr.grindprotocol.task.model.TaskTemplate;
 import com.davidrr.grindprotocol.task.model.Trait;
+import com.davidrr.grindprotocol.task.repository.TaskCompletionRepository;
 import com.davidrr.grindprotocol.task.repository.TaskRepository;
 import com.davidrr.grindprotocol.task.repository.TaskTemplateRepository;
 import com.davidrr.grindprotocol.task.repository.TraitRepository;
@@ -25,6 +29,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -39,6 +45,7 @@ import static org.mockito.Mockito.*;
 class TaskServiceImplTest {
 
     @Mock private TaskRepository taskRepository;
+    @Mock private TaskCompletionRepository taskCompletionRepository;
     @Mock private TaskTemplateRepository taskTemplateRepository;
     @Mock private TraitRepository traitRepository;
     @Mock private UserRepository userRepository;
@@ -266,6 +273,80 @@ class TaskServiceImplTest {
         assertThat(result).containsExactly(response1, response2);
     }
 
+
+    @Test
+    @DisplayName("getCategoryFocus debe devolver todas las categorías con porcentajes calculados")
+    void getCategoryFocus_shouldReturnAllCategoriesWithCalculatedPercentages() {
+        TaskCompletionRepository.CategoryFocusAggregate workAggregate = categoryAggregate(
+                TaskCategory.WORK,
+                3L,
+                90L,
+                9L
+        );
+        TaskCompletionRepository.CategoryFocusAggregate mindAggregate = categoryAggregate(
+                TaskCategory.MIND,
+                1L,
+                30L,
+                3L
+        );
+
+        when(taskCompletionRepository.aggregateCategoryFocus(eq(1L), any(LocalDate.class), any(LocalDate.class)))
+                .thenReturn(List.of(workAggregate, mindAggregate));
+
+        CategoryFocusResponse result = taskService.getCategoryFocus(1L, CategoryFocusPeriod.WEEK);
+
+        assertThat(result.period()).isEqualTo(CategoryFocusPeriod.WEEK);
+        assertThat(result.startDate()).isNotNull();
+        assertThat(result.endDate()).isNotNull();
+        assertThat(result.categories()).hasSize(TaskCategory.values().length);
+
+        assertThat(result.categories())
+                .filteredOn(item -> item.category() == TaskCategory.WORK)
+                .singleElement()
+                .satisfies(item -> {
+                    assertThat(item.completedTasks()).isEqualTo(3L);
+                    assertThat(item.xpEarned()).isEqualTo(90);
+                    assertThat(item.corePointsEarned()).isEqualTo(9);
+                    assertThat(item.percentage()).isEqualByComparingTo(BigDecimal.valueOf(75.00));
+                });
+
+        assertThat(result.categories())
+                .filteredOn(item -> item.category() == TaskCategory.MIND)
+                .singleElement()
+                .satisfies(item -> {
+                    assertThat(item.completedTasks()).isEqualTo(1L);
+                    assertThat(item.xpEarned()).isEqualTo(30);
+                    assertThat(item.corePointsEarned()).isEqualTo(3);
+                    assertThat(item.percentage()).isEqualByComparingTo(BigDecimal.valueOf(25.00));
+                });
+
+        assertThat(result.categories())
+                .filteredOn(item -> item.category() == TaskCategory.BODY)
+                .singleElement()
+                .satisfies(item -> {
+                    assertThat(item.completedTasks()).isZero();
+                    assertThat(item.xpEarned()).isZero();
+                    assertThat(item.corePointsEarned()).isZero();
+                    assertThat(item.percentage()).isEqualByComparingTo(BigDecimal.ZERO);
+                });
+    }
+
+    @Test
+    @DisplayName("getCategoryFocus debe soportar ALL_TIME usando la consulta sin rango de fechas")
+    void getCategoryFocus_shouldSupportAllTimeWithoutDateRange() {
+        when(taskCompletionRepository.aggregateCategoryFocusAllTime(1L)).thenReturn(List.of());
+
+        CategoryFocusResponse result = taskService.getCategoryFocus(1L, CategoryFocusPeriod.ALL_TIME);
+
+        assertThat(result.period()).isEqualTo(CategoryFocusPeriod.ALL_TIME);
+        assertThat(result.startDate()).isNull();
+        assertThat(result.endDate()).isNull();
+        assertThat(result.categories()).hasSize(TaskCategory.values().length);
+
+        verify(taskCompletionRepository).aggregateCategoryFocusAllTime(1L);
+        verify(taskCompletionRepository, never()).aggregateCategoryFocus(anyLong(), any(), any());
+    }
+
     @Test
     @DisplayName("getTaskById debe devolver la tarea si pertenece al usuario")
     void getTaskById_shouldReturnMappedTask() {
@@ -288,4 +369,34 @@ class TaskServiceImplTest {
         assertThatThrownBy(() -> taskService.getTaskById(1L, 10L))
                 .isInstanceOf(ResourceNotFoundException.class);
     }
+
+    private TaskCompletionRepository.CategoryFocusAggregate categoryAggregate(
+            TaskCategory category,
+            Long completedTasks,
+            Long xpEarned,
+            Long corePointsEarned
+    ) {
+        return new TaskCompletionRepository.CategoryFocusAggregate() {
+            @Override
+            public TaskCategory getCategory() {
+                return category;
+            }
+
+            @Override
+            public Long getCompletedTasks() {
+                return completedTasks;
+            }
+
+            @Override
+            public Long getXpEarned() {
+                return xpEarned;
+            }
+
+            @Override
+            public Long getCorePointsEarned() {
+                return corePointsEarned;
+            }
+        };
+    }
+
 }
