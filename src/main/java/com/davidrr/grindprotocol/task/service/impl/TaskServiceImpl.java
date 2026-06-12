@@ -4,13 +4,18 @@ import com.davidrr.grindprotocol.common.exception.BusinessException;
 import com.davidrr.grindprotocol.common.exception.ErrorCodes;
 import com.davidrr.grindprotocol.common.exception.ErrorMessages;
 import com.davidrr.grindprotocol.common.exception.ResourceNotFoundException;
+import com.davidrr.grindprotocol.task.dto.CategoryFocusItemResponse;
+import com.davidrr.grindprotocol.task.dto.CategoryFocusResponse;
 import com.davidrr.grindprotocol.task.dto.CreateTaskFromTemplateRequest;
 import com.davidrr.grindprotocol.task.dto.CreateTaskRequest;
 import com.davidrr.grindprotocol.task.dto.TaskResponse;
+import com.davidrr.grindprotocol.task.enums.CategoryFocusPeriod;
+import com.davidrr.grindprotocol.task.enums.TaskCategory;
 import com.davidrr.grindprotocol.task.mapper.TaskMapper;
 import com.davidrr.grindprotocol.task.model.Task;
 import com.davidrr.grindprotocol.task.model.TaskTemplate;
 import com.davidrr.grindprotocol.task.model.Trait;
+import com.davidrr.grindprotocol.task.repository.TaskCompletionRepository;
 import com.davidrr.grindprotocol.task.repository.TaskRepository;
 import com.davidrr.grindprotocol.task.repository.TaskTemplateRepository;
 import com.davidrr.grindprotocol.task.repository.TraitRepository;
@@ -21,9 +26,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
+import java.util.EnumMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -33,6 +45,7 @@ import java.util.stream.Collectors;
 public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
+    private final TaskCompletionRepository taskCompletionRepository;
     private final TaskTemplateRepository taskTemplateRepository;
     private final TraitRepository traitRepository;
     private final UserRepository userRepository;
@@ -136,6 +149,45 @@ public class TaskServiceImpl implements TaskService {
         return taskMapper.toResponse(task);
     }
 
+    @Override
+    public CategoryFocusResponse getCategoryFocus(Long userId, CategoryFocusPeriod period) {
+        CategoryFocusPeriod resolvedPeriod = period != null ? period : CategoryFocusPeriod.WEEK;
+        DateRange dateRange = resolveDateRange(resolvedPeriod);
+
+        List<TaskCompletionRepository.CategoryFocusAggregate> aggregates =
+                resolvedPeriod == CategoryFocusPeriod.ALL_TIME
+                        ? taskCompletionRepository.aggregateCategoryFocusAllTime(userId)
+                        : taskCompletionRepository.aggregateCategoryFocus(
+                                userId,
+                                dateRange.startDate(),
+                                dateRange.endDate()
+                        );
+
+        Map<TaskCategory, TaskCompletionRepository.CategoryFocusAggregate> aggregatesByCategory =
+                new EnumMap<>(TaskCategory.class);
+
+        aggregates.forEach(aggregate -> aggregatesByCategory.put(aggregate.getCategory(), aggregate));
+
+        long totalCompletedTasks = aggregatesByCategory.values().stream()
+                .mapToLong(aggregate -> safeLong(aggregate.getCompletedTasks()))
+                .sum();
+
+        List<CategoryFocusItemResponse> categories = java.util.Arrays.stream(TaskCategory.values())
+                .map(category -> toCategoryFocusItem(
+                        category,
+                        aggregatesByCategory.get(category),
+                        totalCompletedTasks
+                ))
+                .toList();
+
+        return CategoryFocusResponse.builder()
+                .period(resolvedPeriod)
+                .startDate(dateRange.startDate())
+                .endDate(dateRange.endDate())
+                .categories(categories)
+                .build();
+    }
+
     private void validateCreateTaskRequest(CreateTaskRequest request) {
         if (!request.isRepeatable() && request.getMaxCompletionsPerDay() > 1) {
             throw new BusinessException(
@@ -231,5 +283,70 @@ public class TaskServiceImpl implements TaskService {
         }
 
         return new LinkedHashSet<>(traits);
+    }
+
+    private DateRange resolveDateRange(CategoryFocusPeriod period) {
+        LocalDate today = LocalDate.now();
+
+        return switch (period) {
+            case DAY -> new DateRange(today, today);
+            case WEEK -> {
+                LocalDate start = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+                yield new DateRange(start, start.plusDays(6));
+            }
+            case MONTH -> {
+                LocalDate start = today.withDayOfMonth(1);
+                yield new DateRange(start, start.withDayOfMonth(start.lengthOfMonth()));
+            }
+            case ALL_TIME -> new DateRange(null, null);
+        };
+    }
+
+    private CategoryFocusItemResponse toCategoryFocusItem(
+            TaskCategory category,
+            TaskCompletionRepository.CategoryFocusAggregate aggregate,
+            long totalCompletedTasks
+    ) {
+        long completedTasks = aggregate != null ? safeLong(aggregate.getCompletedTasks()) : 0L;
+        int xpEarned = aggregate != null ? safeLongToInt(aggregate.getXpEarned()) : 0;
+        int corePointsEarned = aggregate != null ? safeLongToInt(aggregate.getCorePointsEarned()) : 0;
+
+        return CategoryFocusItemResponse.builder()
+                .category(category)
+                .completedTasks(completedTasks)
+                .xpEarned(xpEarned)
+                .corePointsEarned(corePointsEarned)
+                .percentage(calculatePercentage(completedTasks, totalCompletedTasks))
+                .build();
+    }
+
+    private BigDecimal calculatePercentage(long completedTasks, long totalCompletedTasks) {
+        if (totalCompletedTasks == 0) {
+            return BigDecimal.ZERO;
+        }
+
+        return BigDecimal.valueOf(completedTasks)
+                .multiply(BigDecimal.valueOf(100))
+                .divide(BigDecimal.valueOf(totalCompletedTasks), 2, RoundingMode.HALF_UP);
+    }
+
+    private long safeLong(Long value) {
+        return value != null ? value : 0L;
+    }
+
+    private int safeLongToInt(Long value) {
+        if (value == null) {
+            return 0;
+        }
+        if (value > Integer.MAX_VALUE) {
+            return Integer.MAX_VALUE;
+        }
+        if (value < Integer.MIN_VALUE) {
+            return Integer.MIN_VALUE;
+        }
+        return value.intValue();
+    }
+
+    private record DateRange(LocalDate startDate, LocalDate endDate) {
     }
 }

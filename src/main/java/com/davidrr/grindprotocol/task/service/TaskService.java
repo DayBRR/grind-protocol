@@ -2,6 +2,8 @@ package com.davidrr.grindprotocol.task.service;
 
 import com.davidrr.grindprotocol.task.dto.CreateTaskFromTemplateRequest;
 import com.davidrr.grindprotocol.task.dto.CreateTaskRequest;
+import com.davidrr.grindprotocol.task.dto.CategoryFocusResponse;
+import com.davidrr.grindprotocol.task.enums.CategoryFocusPeriod;
 import com.davidrr.grindprotocol.task.dto.TaskResponse;
 
 import java.util.List;
@@ -15,4 +17,6 @@ public interface TaskService {
     List<TaskResponse> getActiveTasksByUser(Long userId);
 
     TaskResponse getTaskById(Long userId, Long taskId);
+
+    CategoryFocusResponse getCategoryFocus(Long userId, CategoryFocusPeriod period);
 }
