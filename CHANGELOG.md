@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.18](https://github.com/DayBRR/grind-protocol/compare/v0.1.17...v0.1.18) (2026-06-12)
+
+
+### Features
+
+* **activity:** add user activity events and weekly progression summary ([b250201](https://github.com/DayBRR/grind-protocol/commit/b250201ef8fe2c9714fe09ffb9afb584f27f8b84))
+* **activity:** add user activity events and weekly progression summary ([0a9b49b](https://github.com/DayBRR/grind-protocol/commit/0a9b49bfe018036b5cbd2349a86645f9c4260f39))
+* **tasks:** add category focus dashboard insight ([a79bb68](https://github.com/DayBRR/grind-protocol/commit/a79bb6891d43220e066dd66afc6f424b64bd4070))
+* **tasks:** add category focus dashboard insight ([bced8b6](https://github.com/DayBRR/grind-protocol/commit/bced8b66e2aa03f82df9553de6ea0d0233607843))
+
 ## [0.1.17](https://github.com/DayBRR/grind-protocol/compare/v0.1.16...v0.1.17) (2026-06-02)
 
 
