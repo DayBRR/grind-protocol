@@ -13,6 +13,7 @@ public final class ErrorCodes {
         }
 
         public static final String INTERNAL_ERROR = "INTERNAL_ERROR";
+        public static final String METHOD_NOT_ALLOWED = "METHOD_NOT_ALLOWED";
     }
 
     public static final class Validation {

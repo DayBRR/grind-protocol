@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.core.annotation.Order;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -17,7 +19,21 @@ import java.util.List;
 
 @Slf4j
 @RestControllerAdvice
+@Order(0)
 public class DomainExceptionHandler {
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ApiError> handleMethodNotSupported(
+            HttpRequestMethodNotSupportedException ex, HttpServletRequest request) {
+        ResponseEntity<ApiError> error = buildError(
+                HttpStatus.METHOD_NOT_ALLOWED,
+                ErrorCodes.Generic.METHOD_NOT_ALLOWED,
+                ErrorMessages.Generic.METHOD_NOT_ALLOWED,
+                request);
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
+                .headers(ex.getHeaders())
+                .body(error.getBody());
+    }
 
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<ApiError> handleApiException(
