@@ -66,7 +66,9 @@ public class AuthController {
                                     """)
                     )
             ),
-            @ApiResponse(responseCode = "401", description = "Credenciales inválidas")
+            @ApiResponse(responseCode = "401", description = "Credenciales inválidas",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = com.davidrr.grindprotocol.common.exception.ApiError.class)))
     })
     public ResponseEntity<AuthResponse> login(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(

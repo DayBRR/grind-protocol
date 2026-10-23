@@ -9,6 +9,7 @@ public final class ErrorMessages {
     }
 
     public static final class Generic {
+        public static final String METHOD_NOT_ALLOWED = "Método HTTP no permitido";
         private Generic() {
             throw new AssertionError(NO_INSTANCES);
         }
