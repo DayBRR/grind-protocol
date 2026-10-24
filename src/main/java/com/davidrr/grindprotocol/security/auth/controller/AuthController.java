@@ -41,7 +41,7 @@ public class AuthController {
     @Value("${security.cookie.same-site:Lax}")
     private String cookieSameSite;
 
-    @Value("${security.cookie.path:/auth}")
+    @Value("${security.cookie.path:/api/auth}")
     private String cookiePath;
 
     @Value("${security.cookie.max-age-days:14}")

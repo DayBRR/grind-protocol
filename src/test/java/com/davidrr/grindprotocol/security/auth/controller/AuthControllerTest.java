@@ -70,7 +70,7 @@ class AuthControllerTest {
                 mock(ApplicationEventPublisher.class), encoder, loginAudit);
         var controller = new AuthController(service);
         ReflectionTestUtils.setField(controller, "refreshCookieName", "refresh_token");
-        ReflectionTestUtils.setField(controller, "cookiePath", "/auth");
+        ReflectionTestUtils.setField(controller, "cookiePath", "/api/auth");
         ReflectionTestUtils.setField(controller, "cookieSameSite", "Lax");
         ReflectionTestUtils.setField(controller, "cookieMaxAgeDays", 14L);
         when(keys.loginKey(any(SessionFingerprint.class))).thenReturn("test-login");
@@ -131,7 +131,7 @@ class AuthControllerTest {
                 .andExpect(header().string(HttpHeaders.SET_COOKIE, containsString("refresh_token=refresh-secret")))
                 .andExpect(cookie().httpOnly("refresh_token", true))
                 .andExpect(cookie().secure("refresh_token", false))
-                .andExpect(cookie().path("refresh_token", "/auth"))
+                .andExpect(cookie().path("refresh_token", "/api/auth"))
                 .andExpect(cookie().maxAge("refresh_token", 14 * 24 * 60 * 60))
                 .andExpect(header().string(HttpHeaders.SET_COOKIE, containsString("SameSite=Lax")));
         verify(audit).log(eq(SecurityEventType.LOGIN_SUCCESS), any());
