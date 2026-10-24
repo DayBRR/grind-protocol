@@ -30,7 +30,7 @@ public final class ErrorMessages {
             throw new AssertionError(NO_INSTANCES);
         }
 
-        public static final String ALREADY_EXISTS = "El usuario ya existe";
+        public static final String ALREADY_EXISTS = "Ya existe un usuario con ese nombre de usuario o correo electrónico";
         public static final String NOT_FOUND = "Usuario no encontrado";
     }
 

@@ -7,10 +7,10 @@ import org.springframework.http.HttpStatus;
 
 public class UserAlreadyExistsException extends ApiException {
 
-    public UserAlreadyExistsException(String username) {
+    public UserAlreadyExistsException() {
         super(
                 ErrorCodes.User.ALREADY_EXISTS,
-                ErrorMessages.User.ALREADY_EXISTS + ": " + username,
+                ErrorMessages.User.ALREADY_EXISTS,
                 HttpStatus.CONFLICT
         );
     }
