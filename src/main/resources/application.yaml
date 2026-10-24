@@ -22,7 +22,8 @@ security:
     refresh-name: refresh_token
     secure: false
     same-site: Lax
-    path: /auth
+    # Browser-visible path, including server.servlet.context-path (/api).
+    path: /api/auth
     max-age-days: 14
   rate-limit:
     login:

@@ -82,7 +82,8 @@ public abstract class RegistrationContractTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.token").isNotEmpty())
                 .andExpect(cookie().exists("refresh_token"))
-                .andExpect(cookie().httpOnly("refresh_token", true));
+                .andExpect(cookie().httpOnly("refresh_token", true))
+                .andExpect(cookie().path("refresh_token", "/api/auth"));
         long[] after = counts();
         for (int i = 0; i < before.length; i++) assertThat(after[i]).isEqualTo(before[i] + 1);
         assertThat(events.stream(UserRegisteredEvent.class).count()).isEqualTo(1);
