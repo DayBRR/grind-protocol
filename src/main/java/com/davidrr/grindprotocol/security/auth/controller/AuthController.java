@@ -255,7 +255,19 @@ public class AuthController {
                                     """)
                     )
             ),
-            @ApiResponse(responseCode = "401", description = "Credenciales inválidas")
+            @ApiResponse(responseCode = "409", description = "Nombre de usuario o correo electrónico ya registrado",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = com.davidrr.grindprotocol.common.exception.ApiError.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "timestamp": "2026-10-23T12:00:00Z",
+                                      "status": 409,
+                                      "error": "Conflict",
+                                      "code": "USER_ALREADY_EXISTS",
+                                      "message": "Ya existe un usuario con ese nombre de usuario o correo electrónico",
+                                      "path": "/api/auth/register"
+                                    }
+                                    """)))
     })
     public ResponseEntity<AuthResponse> register(
             @RequestBody @Valid RegisterRequest request,

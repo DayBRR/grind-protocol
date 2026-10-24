@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
+    <!-- Avoid logging account values from the two controlled registration conflicts. -->
+    <turboFilter class="com.davidrr.grindprotocol.common.logging.DuplicateUserSqlLogFilter"/>
+
     <!-- Ruta base de logs -->
     <property name="LOG_PATH" value="logs"/>
 
