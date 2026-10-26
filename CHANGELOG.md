@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.1.19](https://github.com/DayBRR/grind-protocol/compare/v0.1.18...v0.1.19) (2026-10-26)
+
+
+### Bug Fixes
+
+* **auth:** correct refresh token cookie path ([ae18159](https://github.com/DayBRR/grind-protocol/commit/ae181596adb63651a6c64117cb8c6cf2280b016d))
+* **auth:** correct refresh token cookie path ([d099cb0](https://github.com/DayBRR/grind-protocol/commit/d099cb05b69569c343f2b643457c0937f16ef930))
+* **auth:** handle authentication errors with correct HTTP status codes ([840c433](https://github.com/DayBRR/grind-protocol/commit/840c433799197aac92198fab465df0e25cb8467b))
+* **auth:** handle authentication errors with correct HTTP status codes ([ec278a3](https://github.com/DayBRR/grind-protocol/commit/ec278a3ae7f15a0a2f26db7453a2d67f2776c1c5))
+* **auth:** handle duplicate user registration conflicts ([46d6c24](https://github.com/DayBRR/grind-protocol/commit/46d6c243dca49c0cd1a3e4642c85ff7b2a4c4e2f))
+* **auth:** handle duplicate user registration conflicts ([7996dbf](https://github.com/DayBRR/grind-protocol/commit/7996dbf8603a57c0ba5eb5f4136324d9f74e382f))
+* **claims:** prevent concurrent reward claims and lost updates ([f47a21a](https://github.com/DayBRR/grind-protocol/commit/f47a21a74ae0db045ce6f98f6ab696935302dee3))
+* **claims:** prevent concurrent reward claims and lost updates ([098dbe4](https://github.com/DayBRR/grind-protocol/commit/098dbe4fcd2702975d13078c5653b15274f0b9e8))
+
 ## [0.1.18](https://github.com/DayBRR/grind-protocol/compare/v0.1.17...v0.1.18) (2026-06-12)
 
 
