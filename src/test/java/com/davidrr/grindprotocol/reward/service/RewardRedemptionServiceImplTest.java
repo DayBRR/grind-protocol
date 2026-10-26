@@ -60,7 +60,7 @@ class RewardRedemptionServiceImplTest {
         when(rewardRepository.findByIdAndEnabledTrue(10L))
                 .thenReturn(Optional.of(reward));
 
-        when(userProfileRepository.findByUserId(1L))
+        when(userProfileRepository.findLockedByUserId(1L))
                 .thenReturn(Optional.of(userProfile));
 
         ArgumentCaptor<RewardRedemption> redemptionCaptor =
@@ -96,7 +96,7 @@ class RewardRedemptionServiceImplTest {
         assertThat(result.getRedeemedAt()).isNotNull();
 
         verify(rewardRepository).findByIdAndEnabledTrue(10L);
-        verify(userProfileRepository).findByUserId(1L);
+        verify(userProfileRepository).findLockedByUserId(1L);
         verify(rewardRedemptionRepository).save(any(RewardRedemption.class));
         verify(userActivityEventService).recordRewardRedeemed(saved);
     }
@@ -123,14 +123,14 @@ class RewardRedemptionServiceImplTest {
         when(rewardRepository.findByIdAndEnabledTrue(10L))
                 .thenReturn(Optional.of(reward));
 
-        when(userProfileRepository.findByUserId(1L))
+        when(userProfileRepository.findLockedByUserId(1L))
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> rewardRedemptionService.redeemReward(10L, 1L))
                 .isInstanceOf(BusinessException.class);
 
         verify(rewardRepository).findByIdAndEnabledTrue(10L);
-        verify(userProfileRepository).findByUserId(1L);
+        verify(userProfileRepository).findLockedByUserId(1L);
         verifyNoInteractions(rewardRedemptionRepository);
     }
 
@@ -143,7 +143,7 @@ class RewardRedemptionServiceImplTest {
         when(rewardRepository.findByIdAndEnabledTrue(10L))
                 .thenReturn(Optional.of(reward));
 
-        when(userProfileRepository.findByUserId(1L))
+        when(userProfileRepository.findLockedByUserId(1L))
                 .thenReturn(Optional.of(userProfile));
 
         assertThatThrownBy(() -> rewardRedemptionService.redeemReward(10L, 1L))
@@ -152,7 +152,7 @@ class RewardRedemptionServiceImplTest {
         assertThat(userProfile.getCorePoints()).isEqualTo(10L);
 
         verify(rewardRepository).findByIdAndEnabledTrue(10L);
-        verify(userProfileRepository).findByUserId(1L);
+        verify(userProfileRepository).findLockedByUserId(1L);
         verify(rewardRedemptionRepository, never()).save(any());
     }
 
@@ -167,7 +167,7 @@ class RewardRedemptionServiceImplTest {
         when(rewardRepository.findByIdAndEnabledTrue(10L))
                 .thenReturn(Optional.of(reward));
 
-        when(userProfileRepository.findByUserId(1L))
+        when(userProfileRepository.findLockedByUserId(1L))
                 .thenReturn(Optional.of(userProfile));
 
         assertThatThrownBy(() -> rewardRedemptionService.redeemReward(10L, 1L))
@@ -189,7 +189,7 @@ class RewardRedemptionServiceImplTest {
         when(rewardRepository.findByIdAndEnabledTrue(10L))
                 .thenReturn(Optional.of(reward));
 
-        when(userProfileRepository.findByUserId(1L))
+        when(userProfileRepository.findLockedByUserId(1L))
                 .thenReturn(Optional.of(userProfile));
 
         assertThatThrownBy(() -> rewardRedemptionService.redeemReward(10L, 1L))
@@ -289,7 +289,7 @@ class RewardRedemptionServiceImplTest {
         when(rewardRepository.findByIdAndEnabledTrue(10L))
                 .thenReturn(Optional.of(reward));
 
-        when(userProfileRepository.findByUserId(1L))
+        when(userProfileRepository.findLockedByUserId(1L))
                 .thenReturn(Optional.of(userProfile));
 
         when(rewardRedemptionRepository.existsByRewardIdAndUserProfileUserIdAndStatusIn(
@@ -317,7 +317,7 @@ class RewardRedemptionServiceImplTest {
         when(rewardRepository.findByIdAndEnabledTrue(10L))
                 .thenReturn(Optional.of(reward));
 
-        when(userProfileRepository.findByUserId(1L))
+        when(userProfileRepository.findLockedByUserId(1L))
                 .thenReturn(Optional.of(userProfile));
 
         when(rewardRedemptionRepository.existsByRewardIdAndUserProfileUserIdAndStatusIn(
@@ -362,7 +362,7 @@ class RewardRedemptionServiceImplTest {
         when(rewardRepository.findByIdAndEnabledTrue(10L))
                 .thenReturn(Optional.of(reward));
 
-        when(userProfileRepository.findByUserId(1L))
+        when(userProfileRepository.findLockedByUserId(1L))
                 .thenReturn(Optional.of(userProfile));
 
         when(rewardRedemptionRepository
@@ -400,7 +400,7 @@ class RewardRedemptionServiceImplTest {
         when(rewardRepository.findByIdAndEnabledTrue(10L))
                 .thenReturn(Optional.of(reward));
 
-        when(userProfileRepository.findByUserId(1L))
+        when(userProfileRepository.findLockedByUserId(1L))
                 .thenReturn(Optional.of(userProfile));
 
         when(rewardRedemptionRepository

@@ -27,7 +27,7 @@ public class AchievementEvaluationServiceImpl implements AchievementEvaluationSe
     @Transactional
     public void evaluateAchievements(Long userId) {
 
-        UserProfile userProfile = userProfileRepository.findByUserId(userId)
+        UserProfile userProfile = userProfileRepository.findLockedByUserId(userId)
                 .orElseThrow();
 
         List<Achievement> achievements =

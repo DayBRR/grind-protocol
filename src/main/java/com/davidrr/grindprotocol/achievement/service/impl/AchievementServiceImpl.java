@@ -13,6 +13,7 @@ import com.davidrr.grindprotocol.common.exception.BusinessException;
 import com.davidrr.grindprotocol.common.exception.ErrorCodes;
 import com.davidrr.grindprotocol.common.exception.ErrorMessages;
 import com.davidrr.grindprotocol.progression.service.ProgressionService;
+import com.davidrr.grindprotocol.userprofile.repository.UserProfileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 public class AchievementServiceImpl implements AchievementService {
 
     private final AchievementRepository achievementRepository;
+    private final UserProfileRepository userProfileRepository;
     private final UserAchievementRepository userAchievementRepository;
     private final AchievementMapper achievementMapper;
     private final ProgressionService progressionService;
@@ -65,9 +67,13 @@ public class AchievementServiceImpl implements AchievementService {
             Long userId
     ) {
 
+        // Global lock order: profile -> claim instance. Also serializes different rewards.
+        // An absent profile implies an absent instance; retain the existing claim error below.
+        userProfileRepository.findLockedByUserId(userId);
+
         UserAchievement userAchievement =
                 userAchievementRepository
-                        .findByUserProfileUserIdAndAchievementId(
+                        .findLockedByUserProfileUserIdAndAchievementId(
                                 userId,
                                 achievementId
                         )

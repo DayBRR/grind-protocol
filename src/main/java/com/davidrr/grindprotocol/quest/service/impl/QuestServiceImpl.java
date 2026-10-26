@@ -15,6 +15,7 @@ import com.davidrr.grindprotocol.quest.repository.QuestRepository;
 import com.davidrr.grindprotocol.quest.repository.UserQuestRepository;
 import com.davidrr.grindprotocol.quest.service.QuestPeriodResolver;
 import com.davidrr.grindprotocol.quest.service.QuestService;
+import com.davidrr.grindprotocol.userprofile.repository.UserProfileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +29,7 @@ import java.util.List;
 public class QuestServiceImpl implements QuestService {
 
     private final QuestRepository questRepository;
+    private final UserProfileRepository userProfileRepository;
     private final UserQuestRepository userQuestRepository;
     private final QuestPeriodResolver questPeriodResolver;
     private final QuestMapper questMapper;
@@ -91,8 +93,11 @@ public class QuestServiceImpl implements QuestService {
                 today
         );
 
+        // Global lock order: profile -> claim instance. Load balances only after locking.
+        userProfileRepository.findLockedByUserId(userId);
+
         UserQuest userQuest = userQuestRepository
-                .findByUserProfileUserIdAndQuestIdAndPeriodStartAndPeriodEnd(
+                .findLockedByUserProfileUserIdAndQuestIdAndPeriodStartAndPeriodEnd(
                         userId,
                         questId,
                         periodStart,

@@ -23,7 +23,7 @@ public class StreakServiceImpl implements StreakService {
 
     @Override
     public void finalizeDay(Long userId, LocalDate date) {
-        UserProfile profile = userProfileRepository.findByUserId(userId)
+        UserProfile profile = userProfileRepository.findLockedByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         ErrorCodes.UserProfile.NOT_FOUND,
                         "User profile not found for user id: " + userId

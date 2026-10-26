@@ -108,7 +108,7 @@ class UserProfileServiceImplTest {
         UserProfile profile = UserProfile.builder().user(user).displayName("David").dailyTaskGoal(3).build();
         UserProfileResponse response = mock(UserProfileResponse.class);
 
-        when(userProfileRepository.findByUserId(1L)).thenReturn(Optional.of(profile));
+        when(userProfileRepository.findLockedByUserId(1L)).thenReturn(Optional.of(profile));
         when(userProfileRepository.save(profile)).thenReturn(profile);
         when(userProfileMapper.toResponse(profile)).thenReturn(response);
 
@@ -123,7 +123,7 @@ class UserProfileServiceImplTest {
     @DisplayName("updateProfile debe fallar si no existe el perfil")
     void updateProfile_shouldThrowWhenProfileNotFound() {
         UpdateUserProfileRequest request = mock(UpdateUserProfileRequest.class);
-        when(userProfileRepository.findByUserId(1L)).thenReturn(Optional.empty());
+        when(userProfileRepository.findLockedByUserId(1L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userProfileService.updateProfile(1L, request))
                 .isInstanceOf(ResourceNotFoundException.class);

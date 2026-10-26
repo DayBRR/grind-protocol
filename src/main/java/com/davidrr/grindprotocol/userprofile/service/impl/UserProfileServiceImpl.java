@@ -58,7 +58,7 @@ public class UserProfileServiceImpl implements UserProfileService {
     @Override
     @Transactional
     public UserProfileResponse updateProfile(Long currentUserId, UpdateUserProfileRequest request) {
-        UserProfile profile = userProfileRepository.findByUserId(currentUserId)
+        UserProfile profile = userProfileRepository.findLockedByUserId(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         ErrorCodes.UserProfile.NOT_FOUND,
                         "User profile not found for user id: " + currentUserId

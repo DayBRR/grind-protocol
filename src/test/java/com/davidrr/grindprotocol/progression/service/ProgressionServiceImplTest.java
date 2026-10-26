@@ -59,7 +59,7 @@ class ProgressionServiceImplTest {
         completion.setAwardedXp(50);
         completion.setAwardedCorePoints(5);
 
-        when(userProfileRepository.findByUserId(1L)).thenReturn(Optional.of(profile));
+        when(userProfileRepository.findLockedByUserId(1L)).thenReturn(Optional.of(profile));
         when(levelCalculator.calculateLevel(150L)).thenReturn(2);
 
         ArgumentCaptor<UserProfile> profileCaptor = ArgumentCaptor.forClass(UserProfile.class);
@@ -75,7 +75,7 @@ class ProgressionServiceImplTest {
         assertThat(savedProfile.getLevel()).isEqualTo(2);
         assertThat(savedProfile.getCorePoints()).isEqualTo(15L);
 
-        verify(userProfileRepository).findByUserId(1L);
+        verify(userProfileRepository).findLockedByUserId(1L);
         verify(levelCalculator).calculateLevel(150L);
         verify(userProfileRepository).save(profile);
     }
@@ -85,12 +85,12 @@ class ProgressionServiceImplTest {
     void applyTaskCompletionProgress_shouldThrowWhenUserProfileNotFound() {
         TaskCompletion completion = TestDataFactory.taskCompletion(100L, task, user);
 
-        when(userProfileRepository.findByUserId(1L)).thenReturn(Optional.empty());
+        when(userProfileRepository.findLockedByUserId(1L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> progressionService.applyTaskCompletionProgress(1L, completion))
                 .isInstanceOf(ResourceNotFoundException.class);
 
-        verify(userProfileRepository).findByUserId(1L);
+        verify(userProfileRepository).findLockedByUserId(1L);
         verify(levelCalculator, never()).calculateLevel(anyLong());
         verify(userProfileRepository, never()).save(any());
     }
@@ -106,7 +106,7 @@ class ProgressionServiceImplTest {
         completion.setAwardedXp(0);
         completion.setAwardedCorePoints(0);
 
-        when(userProfileRepository.findByUserId(1L)).thenReturn(Optional.of(profile));
+        when(userProfileRepository.findLockedByUserId(1L)).thenReturn(Optional.of(profile));
         when(levelCalculator.calculateLevel(100L)).thenReturn(2);
         when(userProfileRepository.save(any(UserProfile.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
@@ -133,7 +133,7 @@ class ProgressionServiceImplTest {
                 .awardedCorePoints(2)
                 .build();
 
-        when(userProfileRepository.findByUserId(1L)).thenReturn(Optional.of(profile));
+        when(userProfileRepository.findLockedByUserId(1L)).thenReturn(Optional.of(profile));
         when(levelCalculator.calculateLevel(110L)).thenReturn(2);
 
         progressionService.applyTaskCompletionProgress(1L, completion);
@@ -158,7 +158,7 @@ class ProgressionServiceImplTest {
                 .awardedCorePoints(2)
                 .build();
 
-        when(userProfileRepository.findByUserId(1L)).thenReturn(Optional.of(profile));
+        when(userProfileRepository.findLockedByUserId(1L)).thenReturn(Optional.of(profile));
         when(levelCalculator.calculateLevel(70L)).thenReturn(1);
 
         progressionService.applyTaskCompletionProgress(1L, completion);

@@ -23,7 +23,7 @@ public class ProgressionServiceImpl implements ProgressionService {
 
     @Override
     public void applyTaskCompletionProgress(Long userId, TaskCompletion completion) {
-        UserProfile profile = userProfileRepository.findByUserId(userId)
+        UserProfile profile = userProfileRepository.findLockedByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         ErrorCodes.UserProfile.NOT_FOUND,
                         "User profile not found for user id: " + userId
@@ -56,6 +56,8 @@ public class ProgressionServiceImpl implements ProgressionService {
     @Transactional
     public void addProgressionRewards(UserProfile userProfile, Long xp, Long corePoints) {
 
+        // Claim services acquire the profile lock before loading the claim and keep it
+        // through this REQUIRED transaction, the activity event and the final commit.
         userProfile.setTotalXp(
                 userProfile.getTotalXp() + xp
         );
