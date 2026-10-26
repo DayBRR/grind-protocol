@@ -33,7 +33,7 @@ public class QuestEvaluationServiceImpl implements QuestEvaluationService {
     @Transactional
     public void evaluateQuests(Long userId) {
 
-        UserProfile userProfile = userProfileRepository.findByUserId(userId)
+        UserProfile userProfile = userProfileRepository.findLockedByUserId(userId)
                 .orElseThrow();
 
         LocalDate today = LocalDate.now();

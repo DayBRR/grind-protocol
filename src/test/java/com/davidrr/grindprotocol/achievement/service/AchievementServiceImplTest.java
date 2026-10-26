@@ -14,6 +14,7 @@ import com.davidrr.grindprotocol.common.exception.BusinessException;
 import com.davidrr.grindprotocol.progression.service.ProgressionService;
 import com.davidrr.grindprotocol.user.model.User;
 import com.davidrr.grindprotocol.userprofile.model.UserProfile;
+import com.davidrr.grindprotocol.userprofile.repository.UserProfileRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,6 +48,8 @@ class AchievementServiceImplTest {
 
     @Mock
     private UserActivityEventService userActivityEventService;
+
+    @Mock private UserProfileRepository userProfileRepository;
 
     @InjectMocks
     private AchievementServiceImpl achievementService;
@@ -100,12 +103,17 @@ class AchievementServiceImplTest {
         userAchievement.setUnlocked(true);
         userAchievement.setClaimed(false);
 
-        when(userAchievementRepository.findByUserProfileUserIdAndAchievementId(1L, 4L))
+        when(userAchievementRepository.findLockedByUserProfileUserIdAndAchievementId(1L, 4L))
                 .thenReturn(Optional.of(userAchievement));
         when(userAchievementRepository.save(userAchievement)).thenReturn(userAchievement);
 
         AchievementClaimResponse result =
                 achievementService.claimAchievement(4L, 1L);
+
+        var locks = inOrder(userProfileRepository, userAchievementRepository, progressionService);
+        locks.verify(userProfileRepository).findLockedByUserId(1L);
+        locks.verify(userAchievementRepository).findLockedByUserProfileUserIdAndAchievementId(1L, 4L);
+        locks.verify(progressionService).addProgressionRewards(userProfile, 25L, 5L);
 
         assertThat(result.getAchievementId()).isEqualTo(4L);
         assertThat(result.getCode()).isEqualTo("TOTAL_XP_100");
@@ -130,7 +138,7 @@ class AchievementServiceImplTest {
     @Test
     @DisplayName("claimAchievement debe fallar si el achievement no existe para el usuario")
     void claimAchievement_shouldThrowWhenAchievementNotFoundForUser() {
-        when(userAchievementRepository.findByUserProfileUserIdAndAchievementId(1L, 4L))
+        when(userAchievementRepository.findLockedByUserProfileUserIdAndAchievementId(1L, 4L))
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> achievementService.claimAchievement(4L, 1L))
@@ -150,7 +158,7 @@ class AchievementServiceImplTest {
         userAchievement.setUnlocked(false);
         userAchievement.setClaimed(false);
 
-        when(userAchievementRepository.findByUserProfileUserIdAndAchievementId(1L, 4L))
+        when(userAchievementRepository.findLockedByUserProfileUserIdAndAchievementId(1L, 4L))
                 .thenReturn(Optional.of(userAchievement));
 
         assertThatThrownBy(() -> achievementService.claimAchievement(4L, 1L))
@@ -170,7 +178,7 @@ class AchievementServiceImplTest {
         userAchievement.setUnlocked(true);
         userAchievement.setClaimed(true);
 
-        when(userAchievementRepository.findByUserProfileUserIdAndAchievementId(1L, 4L))
+        when(userAchievementRepository.findLockedByUserProfileUserIdAndAchievementId(1L, 4L))
                 .thenReturn(Optional.of(userAchievement));
 
         assertThatThrownBy(() -> achievementService.claimAchievement(4L, 1L))

@@ -52,7 +52,7 @@ class AchievementEvaluationServiceImplTest {
                 100L
         );
 
-        when(userProfileRepository.findByUserId(1L))
+        when(userProfileRepository.findLockedByUserId(1L))
                 .thenReturn(Optional.of(userProfile));
 
         when(achievementRepository.findByEnabledTrueOrderByIdAsc())
@@ -91,7 +91,7 @@ class AchievementEvaluationServiceImplTest {
                 100L
         );
 
-        when(userProfileRepository.findByUserId(1L))
+        when(userProfileRepository.findLockedByUserId(1L))
                 .thenReturn(Optional.of(userProfile));
 
         when(achievementRepository.findByEnabledTrueOrderByIdAsc())
@@ -136,7 +136,7 @@ class AchievementEvaluationServiceImplTest {
         existing.setUnlocked(false);
         existing.setClaimed(false);
 
-        when(userProfileRepository.findByUserId(1L))
+        when(userProfileRepository.findLockedByUserId(1L))
                 .thenReturn(Optional.of(userProfile));
 
         when(achievementRepository.findByEnabledTrueOrderByIdAsc())
@@ -178,7 +178,7 @@ class AchievementEvaluationServiceImplTest {
         existing.setUnlockedAt(originalUnlockedAt);
         existing.setClaimed(false);
 
-        when(userProfileRepository.findByUserId(1L))
+        when(userProfileRepository.findLockedByUserId(1L))
                 .thenReturn(Optional.of(userProfile));
 
         when(achievementRepository.findByEnabledTrueOrderByIdAsc())
@@ -209,7 +209,7 @@ class AchievementEvaluationServiceImplTest {
                 5L
         );
 
-        when(userProfileRepository.findByUserId(1L))
+        when(userProfileRepository.findLockedByUserId(1L))
                 .thenReturn(Optional.of(userProfile));
 
         when(achievementRepository.findByEnabledTrueOrderByIdAsc())
@@ -244,7 +244,7 @@ class AchievementEvaluationServiceImplTest {
                 7L
         );
 
-        when(userProfileRepository.findByUserId(1L))
+        when(userProfileRepository.findLockedByUserId(1L))
                 .thenReturn(Optional.of(userProfile));
 
         when(achievementRepository.findByEnabledTrueOrderByIdAsc())
@@ -279,7 +279,7 @@ class AchievementEvaluationServiceImplTest {
                 10L
         );
 
-        when(userProfileRepository.findByUserId(1L))
+        when(userProfileRepository.findLockedByUserId(1L))
                 .thenReturn(Optional.of(userProfile));
 
         when(achievementRepository.findByEnabledTrueOrderByIdAsc())

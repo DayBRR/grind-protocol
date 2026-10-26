@@ -168,7 +168,7 @@ class QuestEvaluationServiceImplTest {
     }
 
     private void mockBaseEvaluation(UserProfile userProfile, Quest quest, LocalDate today) {
-        when(userProfileRepository.findByUserId(1L)).thenReturn(Optional.of(userProfile));
+        when(userProfileRepository.findLockedByUserId(1L)).thenReturn(Optional.of(userProfile));
         when(questRepository.findByEnabledTrueOrderByIdAsc()).thenReturn(List.of(quest));
         when(questPeriodResolver.resolvePeriodStart(QuestFrequency.DAILY, today)).thenReturn(today);
         when(questPeriodResolver.resolvePeriodEnd(QuestFrequency.DAILY, today)).thenReturn(today);

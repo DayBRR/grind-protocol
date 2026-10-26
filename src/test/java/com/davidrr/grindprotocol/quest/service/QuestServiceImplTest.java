@@ -16,6 +16,7 @@ import com.davidrr.grindprotocol.quest.repository.UserQuestRepository;
 import com.davidrr.grindprotocol.quest.service.impl.QuestServiceImpl;
 import com.davidrr.grindprotocol.user.model.User;
 import com.davidrr.grindprotocol.userprofile.model.UserProfile;
+import com.davidrr.grindprotocol.userprofile.repository.UserProfileRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,6 +41,8 @@ class QuestServiceImplTest {
     @Mock private QuestMapper questMapper;
     @Mock private ProgressionService progressionService;
     @Mock private UserActivityEventService userActivityEventService;
+
+    @Mock private UserProfileRepository userProfileRepository;
 
     @InjectMocks
     private QuestServiceImpl questService;
@@ -81,13 +84,19 @@ class QuestServiceImplTest {
         when(questRepository.findById(1L)).thenReturn(Optional.of(quest));
         when(questPeriodResolver.resolvePeriodStart(QuestFrequency.DAILY, today)).thenReturn(today);
         when(questPeriodResolver.resolvePeriodEnd(QuestFrequency.DAILY, today)).thenReturn(today);
-        when(userQuestRepository.findByUserProfileUserIdAndQuestIdAndPeriodStartAndPeriodEnd(
+        when(userQuestRepository.findLockedByUserProfileUserIdAndQuestIdAndPeriodStartAndPeriodEnd(
                 1L, 1L, today, today
         )).thenReturn(Optional.of(userQuest));
         when(userQuestRepository.save(userQuest)).thenReturn(userQuest);
         when(questMapper.toClaimResponse(userQuest)).thenReturn(response);
 
         QuestClaimResponse result = questService.claimQuest(1L, 1L);
+
+        var locks = inOrder(userProfileRepository, userQuestRepository, progressionService);
+        locks.verify(userProfileRepository).findLockedByUserId(1L);
+        locks.verify(userQuestRepository).findLockedByUserProfileUserIdAndQuestIdAndPeriodStartAndPeriodEnd(
+                1L, 1L, today, today);
+        locks.verify(progressionService).addProgressionRewards(userProfile, 50L, 5L);
 
         assertThat(result).isSameAs(response);
         assertThat(userQuest.getStatus()).isEqualTo(QuestStatus.CLAIMED);
@@ -121,7 +130,7 @@ class QuestServiceImplTest {
         when(questRepository.findById(1L)).thenReturn(Optional.of(quest));
         when(questPeriodResolver.resolvePeriodStart(QuestFrequency.DAILY, today)).thenReturn(today);
         when(questPeriodResolver.resolvePeriodEnd(QuestFrequency.DAILY, today)).thenReturn(today);
-        when(userQuestRepository.findByUserProfileUserIdAndQuestIdAndPeriodStartAndPeriodEnd(
+        when(userQuestRepository.findLockedByUserProfileUserIdAndQuestIdAndPeriodStartAndPeriodEnd(
                 1L, 1L, today, today
         )).thenReturn(Optional.empty());
 
@@ -142,7 +151,7 @@ class QuestServiceImplTest {
         when(questRepository.findById(1L)).thenReturn(Optional.of(quest));
         when(questPeriodResolver.resolvePeriodStart(QuestFrequency.DAILY, today)).thenReturn(today);
         when(questPeriodResolver.resolvePeriodEnd(QuestFrequency.DAILY, today)).thenReturn(today);
-        when(userQuestRepository.findByUserProfileUserIdAndQuestIdAndPeriodStartAndPeriodEnd(
+        when(userQuestRepository.findLockedByUserProfileUserIdAndQuestIdAndPeriodStartAndPeriodEnd(
                 1L, 1L, today, today
         )).thenReturn(Optional.of(userQuest));
 
@@ -164,7 +173,7 @@ class QuestServiceImplTest {
         when(questRepository.findById(1L)).thenReturn(Optional.of(quest));
         when(questPeriodResolver.resolvePeriodStart(QuestFrequency.DAILY, today)).thenReturn(today);
         when(questPeriodResolver.resolvePeriodEnd(QuestFrequency.DAILY, today)).thenReturn(today);
-        when(userQuestRepository.findByUserProfileUserIdAndQuestIdAndPeriodStartAndPeriodEnd(
+        when(userQuestRepository.findLockedByUserProfileUserIdAndQuestIdAndPeriodStartAndPeriodEnd(
                 1L, 1L, today, today
         )).thenReturn(Optional.of(userQuest));
 

@@ -43,7 +43,7 @@ public class RewardRedemptionServiceImpl implements RewardRedemptionService {
                         ErrorMessages.Reward.NOT_FOUND
                 ));
 
-        UserProfile userProfile = userProfileRepository.findByUserId(userId)
+        UserProfile userProfile = userProfileRepository.findLockedByUserId(userId)
                 .orElseThrow(() -> new BusinessException(
                         ErrorCodes.UserProfile.NOT_FOUND,
                         ErrorMessages.UserProfile.NOT_FOUND

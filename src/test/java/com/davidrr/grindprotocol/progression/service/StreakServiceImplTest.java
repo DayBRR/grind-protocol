@@ -60,7 +60,7 @@ class StreakServiceImplTest {
     void finalizeDay_shouldStartStreakWhenDayQualifiedAndNoPreviousEvaluation() {
         progress.setDayQualified(true);
 
-        when(userProfileRepository.findByUserId(USER_ID)).thenReturn(Optional.of(profile));
+        when(userProfileRepository.findLockedByUserId(USER_ID)).thenReturn(Optional.of(profile));
         when(dailyProgressRepository.findByUserIdAndProgressDate(USER_ID, TODAY)).thenReturn(Optional.of(progress));
         when(userProfileRepository.save(any(UserProfile.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -81,7 +81,7 @@ class StreakServiceImplTest {
         profile.setLastEvaluatedDate(YESTERDAY);
         progress.setDayQualified(true);
 
-        when(userProfileRepository.findByUserId(USER_ID)).thenReturn(Optional.of(profile));
+        when(userProfileRepository.findLockedByUserId(USER_ID)).thenReturn(Optional.of(profile));
         when(dailyProgressRepository.findByUserIdAndProgressDate(USER_ID, TODAY)).thenReturn(Optional.of(progress));
         when(userProfileRepository.save(any(UserProfile.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -100,7 +100,7 @@ class StreakServiceImplTest {
         profile.setLastEvaluatedDate(YESTERDAY);
         progress.setDayQualified(true);
 
-        when(userProfileRepository.findByUserId(USER_ID)).thenReturn(Optional.of(profile));
+        when(userProfileRepository.findLockedByUserId(USER_ID)).thenReturn(Optional.of(profile));
         when(dailyProgressRepository.findByUserIdAndProgressDate(USER_ID, TODAY)).thenReturn(Optional.of(progress));
         when(userProfileRepository.save(any(UserProfile.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -118,7 +118,7 @@ class StreakServiceImplTest {
         profile.setLastEvaluatedDate(TODAY.minusDays(3));
         progress.setDayQualified(true);
 
-        when(userProfileRepository.findByUserId(USER_ID)).thenReturn(Optional.of(profile));
+        when(userProfileRepository.findLockedByUserId(USER_ID)).thenReturn(Optional.of(profile));
         when(dailyProgressRepository.findByUserIdAndProgressDate(USER_ID, TODAY)).thenReturn(Optional.of(progress));
         when(userProfileRepository.save(any(UserProfile.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -137,7 +137,7 @@ class StreakServiceImplTest {
         profile.setLastEvaluatedDate(YESTERDAY);
         progress.setDayQualified(false);
 
-        when(userProfileRepository.findByUserId(USER_ID)).thenReturn(Optional.of(profile));
+        when(userProfileRepository.findLockedByUserId(USER_ID)).thenReturn(Optional.of(profile));
         when(dailyProgressRepository.findByUserIdAndProgressDate(USER_ID, TODAY)).thenReturn(Optional.of(progress));
         when(userProfileRepository.save(any(UserProfile.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -156,7 +156,7 @@ class StreakServiceImplTest {
         profile.setLastEvaluatedDate(TODAY);
         progress.setDayQualified(true);
 
-        when(userProfileRepository.findByUserId(USER_ID)).thenReturn(Optional.of(profile));
+        when(userProfileRepository.findLockedByUserId(USER_ID)).thenReturn(Optional.of(profile));
         when(dailyProgressRepository.findByUserIdAndProgressDate(USER_ID, TODAY)).thenReturn(Optional.of(progress));
 
         streakService.finalizeDay(USER_ID, TODAY);
@@ -171,7 +171,7 @@ class StreakServiceImplTest {
     @Test
     @DisplayName("Debe fallar si no existe UserProfile")
     void finalizeDay_shouldThrowWhenUserProfileDoesNotExist() {
-        when(userProfileRepository.findByUserId(USER_ID)).thenReturn(Optional.empty());
+        when(userProfileRepository.findLockedByUserId(USER_ID)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> streakService.finalizeDay(USER_ID, TODAY))
                 .isInstanceOf(ResourceNotFoundException.class);
@@ -183,7 +183,7 @@ class StreakServiceImplTest {
     @Test
     @DisplayName("Debe fallar si no existe DailyProgress para la fecha")
     void finalizeDay_shouldThrowWhenDailyProgressDoesNotExist() {
-        when(userProfileRepository.findByUserId(USER_ID)).thenReturn(Optional.of(profile));
+        when(userProfileRepository.findLockedByUserId(USER_ID)).thenReturn(Optional.of(profile));
         when(dailyProgressRepository.findByUserIdAndProgressDate(USER_ID, TODAY)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> streakService.finalizeDay(USER_ID, TODAY))
