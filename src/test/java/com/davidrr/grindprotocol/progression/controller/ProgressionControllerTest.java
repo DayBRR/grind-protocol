@@ -48,14 +48,12 @@ class ProgressionControllerTest {
     }
 
     @Test
-    @DisplayName("finalizeDay debe usar LocalDate.now cuando no se informa fecha")
-    void finalizeDay_shouldUseCurrentDateWhenDateIsNull() {
+    @DisplayName("finalizeDay debe delegar la fecha de cierre predeterminada al servicio")
+    void finalizeDay_shouldDelegateDefaultClosedDate() {
         AuthenticatedUser currentUser = TestAuthenticatedUserFactory.defaultUser();
-        LocalDate today = LocalDate.now();
-
         progressionController.finalizeDay(currentUser, null);
 
-        verify(streakService).finalizeDay(1L, today);
+        verify(streakService).finalizeDay(1L, null);
     }
 
     @Test

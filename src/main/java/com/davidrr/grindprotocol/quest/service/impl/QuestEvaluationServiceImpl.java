@@ -1,5 +1,7 @@
 package com.davidrr.grindprotocol.quest.service.impl;
 
+import com.davidrr.grindprotocol.progression.time.DayCalendar;
+
 import com.davidrr.grindprotocol.quest.enums.QuestStatus;
 import com.davidrr.grindprotocol.quest.enums.QuestType;
 import com.davidrr.grindprotocol.quest.model.Quest;
@@ -16,13 +18,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class QuestEvaluationServiceImpl implements QuestEvaluationService {
 
+    private final DayCalendar calendar;
     private final QuestRepository questRepository;
     private final UserQuestRepository userQuestRepository;
     private final UserProfileRepository userProfileRepository;
@@ -36,7 +38,7 @@ public class QuestEvaluationServiceImpl implements QuestEvaluationService {
         UserProfile userProfile = userProfileRepository.findLockedByUserId(userId)
                 .orElseThrow();
 
-        LocalDate today = LocalDate.now();
+        LocalDate today = calendar.today();
 
         List<Quest> quests = questRepository.findByEnabledTrueOrderByIdAsc();
 
@@ -93,7 +95,7 @@ public class QuestEvaluationServiceImpl implements QuestEvaluationService {
                 && progressValue >= quest.getTargetValue()) {
 
             userQuest.setStatus(QuestStatus.COMPLETED);
-            userQuest.setCompletedAt(LocalDateTime.now());
+            userQuest.setCompletedAt(calendar.now());
         }
 
         userQuestRepository.save(userQuest);

@@ -1,5 +1,9 @@
 package com.davidrr.grindprotocol.task.service;
 
+import com.davidrr.grindprotocol.progression.time.DayCalendar;
+import org.mockito.Spy;
+import java.time.Clock;
+
 import com.davidrr.grindprotocol.task.dto.DailyProgressResponse;
 import com.davidrr.grindprotocol.task.mapper.DailyProgressMapper;
 import com.davidrr.grindprotocol.task.model.DailyProgress;
@@ -33,6 +37,10 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class DailyProgressServiceImplTest {
 
+    @Spy private DayCalendar calendar = new DayCalendar(Clock.fixed(java.time.Instant.parse("2026-04-18T12:00:00Z"), java.time.ZoneOffset.UTC));
+
+    @Mock private com.davidrr.grindprotocol.progression.service.StreakService streakService;
+
     @Mock
     private UserRepository userRepository;
 
@@ -58,6 +66,27 @@ class DailyProgressServiceImplTest {
     void setUp() {
         user = TestDataFactory.user();
         progressDate = LocalDate.of(2026, 4, 18);
+    }
+
+    @Test
+    void pastProgressIsReturnedWithoutReadingCurrentTasksOrSaving() {
+        DailyProgress previous = TestDataFactory.dailyProgress(user);
+        previous.setProgressDate(progressDate.minusDays(1));
+        previous.setDayQualified(true);
+        when(dailyProgressRepository.findByUserIdAndProgressDate(1L, previous.getProgressDate()))
+                .thenReturn(Optional.of(previous));
+        when(dailyProgressMapper.toResponse(previous)).thenReturn(mapToResponse(previous));
+        assertThat(dailyProgressService.recalculateDailyProgress(1L, previous.getProgressDate()).isDayQualified()).isTrue();
+        org.mockito.Mockito.verifyNoInteractions(taskRepository, taskCompletionRepository);
+        org.mockito.Mockito.verify(dailyProgressRepository, org.mockito.Mockito.never()).save(any());
+    }
+
+    @Test
+    void cannotCalculateFutureProgress() {
+        org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+                dailyProgressService.recalculateDailyProgress(1L, progressDate.plusDays(1)))
+                .isInstanceOf(com.davidrr.grindprotocol.common.exception.BusinessException.class);
+        org.mockito.Mockito.verifyNoInteractions(taskRepository, taskCompletionRepository);
     }
 
     @Test

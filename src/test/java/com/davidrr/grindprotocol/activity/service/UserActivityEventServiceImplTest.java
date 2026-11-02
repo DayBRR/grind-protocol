@@ -1,5 +1,9 @@
 package com.davidrr.grindprotocol.activity.service;
 
+import com.davidrr.grindprotocol.progression.time.DayCalendar;
+import org.mockito.Spy;
+import java.time.Clock;
+
 import com.davidrr.grindprotocol.activity.dto.ActivityItemResponse;
 import com.davidrr.grindprotocol.activity.dto.RecentActivityResponse;
 import com.davidrr.grindprotocol.activity.dto.WeeklyProgressionSummaryResponse;
@@ -46,6 +50,8 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class UserActivityEventServiceImplTest {
 
+    @Spy private DayCalendar calendar = new DayCalendar(Clock.systemDefaultZone());
+
     @Mock
     private UserActivityEventRepository userActivityEventRepository;
 
@@ -60,6 +66,7 @@ class UserActivityEventServiceImplTest {
     @BeforeEach
     void setUp() {
         userActivityEventService = new UserActivityEventServiceImpl(
+                calendar,
                 userActivityEventRepository,
                 userProfileRepository,
                 new ObjectMapper()

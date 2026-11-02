@@ -67,6 +67,8 @@ public final class ErrorCodes {
         }
 
         public static final String NOT_FOUND = "DAILY_PROGRESS_TEMPLATE_NOT_FOUND";
+        public static final String DAY_NOT_CLOSED = "DAY_NOT_CLOSED";
+        public static final String DAY_IN_FUTURE = "DAY_IN_FUTURE";
     }
 
     public static final class Reward {

@@ -48,6 +48,8 @@ class ClaimConcurrencyIT extends AbstractPostgresIT {
     @Autowired UserProfileRepository profiles;
     @Autowired PlatformTransactionManager transactionManager;
     @Autowired JdbcTemplate jdbc;
+    @Autowired com.davidrr.grindprotocol.progression.service.StreakService streaks;
+    @Autowired com.davidrr.grindprotocol.task.repository.DailyProgressRepository daily;
 
     private TransactionTemplate tx;
     private Long userId;
@@ -74,11 +76,30 @@ class ClaimConcurrencyIT extends AbstractPostgresIT {
             jdbc.update("delete from user_activity_events where fk_user_profile=?", profileId);
             jdbc.update("delete from user_achievements where fk_user_profile=?", profileId);
             jdbc.update("delete from user_quests where fk_user_profile=?", profileId);
+            jdbc.update("delete from daily_progress where user_id=?", userId);
             jdbc.update("delete from user_profiles where id=?", profileId);
             jdbc.update("delete from users where id=?", userId);
             achievementIds.forEach(id -> jdbc.update("delete from achievements where id=?", id));
             questIds.forEach(id -> jdbc.update("delete from quests where id=?", id));
         });
+    }
+
+    @Test
+    void questClaimAndDayClosureShareTheProfileLock() throws Exception {
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+        tx.executeWithoutResult(s -> daily.save(com.davidrr.grindprotocol.task.model.DailyProgress.builder()
+                .user(users.findById(userId).orElseThrow()).progressDate(yesterday)
+                .requiredTaskCount(3).completedValidTaskCount(3)
+                .mandatoryTasksRequired(1).mandatoryTasksCompleted(1).dayQualified(true)
+                .evaluatedAt(yesterday.atTime(23, 0)).build()));
+        Long quest = quest();
+        concurrent(() -> quests.claimQuest(quest, userId), () -> streaks.closeElapsedDays(userId), "OK");
+        assertQuest(quest);
+        assertBalances(140, 17, 1);
+        UserProfile profile = profiles.findById(profileId).orElseThrow();
+        assertThat(profile.getCurrentStreak()).isEqualTo(1);
+        assertThat(profile.getBestStreak()).isEqualTo(1);
+        assertThat(profile.getLastEvaluatedDate()).isEqualTo(yesterday);
     }
 
     @Test

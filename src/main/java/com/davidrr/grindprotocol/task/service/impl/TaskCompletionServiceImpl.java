@@ -8,9 +8,9 @@ import com.davidrr.grindprotocol.common.exception.ErrorMessages;
 import com.davidrr.grindprotocol.common.exception.ResourceNotFoundException;
 import com.davidrr.grindprotocol.progression.service.ProgressionService;
 import com.davidrr.grindprotocol.progression.service.StreakService;
+import com.davidrr.grindprotocol.progression.time.DayCalendar;
 import com.davidrr.grindprotocol.quest.service.QuestEvaluationService;
 import com.davidrr.grindprotocol.task.dto.CreateTaskCompletionRequest;
-import com.davidrr.grindprotocol.task.dto.DailyProgressResponse;
 import com.davidrr.grindprotocol.task.dto.TaskCompletionResponse;
 import com.davidrr.grindprotocol.task.enums.CompletionSource;
 import com.davidrr.grindprotocol.task.mapper.TaskCompletionMapper;
@@ -25,7 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -42,10 +41,14 @@ public class TaskCompletionServiceImpl implements TaskCompletionService {
     private final AchievementEvaluationService achievementEvaluationService;
     private final TaskCompletionMapper taskCompletionMapper;
     private final UserActivityEventService userActivityEventService;
+    private final DayCalendar calendar;
 
     @Override
     @Transactional
     public TaskCompletionResponse completeTask(Long userId, CreateTaskCompletionRequest request) {
+        // Serialize validation/index allocation, progress and rewards under the same
+        // profile lock used by claims. Sample the business day only after locking.
+        streakService.closeElapsedDays(userId);
         Long taskId = request.getTaskId();
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -56,7 +59,7 @@ public class TaskCompletionServiceImpl implements TaskCompletionService {
         validateTaskOwnership(task, userId);
         validateTaskIsActive(task);
 
-        LocalDate completionDate = LocalDate.now();
+        LocalDate completionDate = calendar.today();
         int nextIndex = resolveNextCompletionIndex(taskId, completionDate);
 
         validateCompletionAllowed(task, nextIndex);
@@ -67,7 +70,7 @@ public class TaskCompletionServiceImpl implements TaskCompletionService {
         TaskCompletion completion = TaskCompletion.builder()
                 .task(task)
                 .user(task.getUser())
-                .completedAt(LocalDateTime.now())
+                .completedAt(calendar.now())
                 .completionDate(completionDate)
                 .completionIndexForDay(nextIndex)
                 .countedForDailyGoal(nextIndex == 1)
@@ -81,14 +84,10 @@ public class TaskCompletionServiceImpl implements TaskCompletionService {
 
         TaskCompletion saved = taskCompletionRepository.save(completion);
 
-        DailyProgressResponse dailyProgress = dailyProgressService.recalculateDailyProgress(userId, completionDate);
+        dailyProgressService.recalculateDailyProgress(userId, completionDate);
 
         progressionService.applyTaskCompletionProgress(userId, saved);
         userActivityEventService.recordTaskCompleted(saved);
-
-        if (dailyProgress.isDayQualified()) {
-            streakService.finalizeDay(userId, completionDate);
-        }
 
         questEvaluationService.evaluateQuests(userId);
         achievementEvaluationService.evaluateAchievements(userId);
@@ -98,7 +97,7 @@ public class TaskCompletionServiceImpl implements TaskCompletionService {
 
     @Override
     public List<TaskCompletionResponse> getTodayCompletions(Long userId) {
-        return taskCompletionRepository.findByUserIdAndCompletionDate(userId, LocalDate.now())
+        return taskCompletionRepository.findByUserIdAndCompletionDate(userId, calendar.today())
                 .stream()
                 .map(taskCompletionMapper::toResponse)
                 .toList();

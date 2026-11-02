@@ -1,5 +1,9 @@
 package com.davidrr.grindprotocol.task.service;
 
+import com.davidrr.grindprotocol.progression.time.DayCalendar;
+import org.mockito.Spy;
+import java.time.Clock;
+
 import com.davidrr.grindprotocol.common.exception.BusinessException;
 import com.davidrr.grindprotocol.common.exception.ResourceNotFoundException;
 import com.davidrr.grindprotocol.task.dto.CategoryFocusResponse;
@@ -43,6 +47,11 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class TaskServiceImplTest {
+
+    @Spy private DayCalendar calendar = new DayCalendar(Clock.systemDefaultZone());
+
+    @Mock private DailyProgressService dailyProgressService;
+    @Mock private com.davidrr.grindprotocol.progression.service.StreakService streakService;
 
     @Mock private TaskRepository taskRepository;
     @Mock private TaskCompletionRepository taskCompletionRepository;

@@ -1,5 +1,9 @@
 package com.davidrr.grindprotocol.quest.service;
 
+import com.davidrr.grindprotocol.progression.time.DayCalendar;
+import org.mockito.Spy;
+import java.time.Clock;
+
 import com.davidrr.grindprotocol.quest.enums.QuestFrequency;
 import com.davidrr.grindprotocol.quest.enums.QuestStatus;
 import com.davidrr.grindprotocol.quest.enums.QuestType;
@@ -30,6 +34,8 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class QuestEvaluationServiceImplTest {
+
+    @Spy private DayCalendar calendar = new DayCalendar(Clock.systemDefaultZone());
 
     @Mock private QuestRepository questRepository;
     @Mock private UserQuestRepository userQuestRepository;

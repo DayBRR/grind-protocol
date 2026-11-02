@@ -1,5 +1,7 @@
 package com.davidrr.grindprotocol.activity.service.impl;
 
+import com.davidrr.grindprotocol.progression.time.DayCalendar;
+
 import com.davidrr.grindprotocol.activity.dto.ActivityItemResponse;
 import com.davidrr.grindprotocol.activity.dto.DailyProgressionSummaryResponse;
 import com.davidrr.grindprotocol.activity.dto.RecentActivityResponse;
@@ -51,6 +53,7 @@ public class UserActivityEventServiceImpl implements UserActivityEventService {
     private static final int DEFAULT_LIMIT = 10;
     private static final int MAX_LIMIT = 50;
 
+    private final DayCalendar calendar;
     private final UserActivityEventRepository userActivityEventRepository;
     private final UserProfileRepository userProfileRepository;
     private final ObjectMapper objectMapper;
@@ -193,7 +196,7 @@ public class UserActivityEventServiceImpl implements UserActivityEventService {
 
     @Override
     public WeeklyProgressionSummaryResponse getWeeklySummary(Long userId, LocalDate referenceDate) {
-        LocalDate targetDate = referenceDate != null ? referenceDate : LocalDate.now();
+        LocalDate targetDate = referenceDate != null ? referenceDate : calendar.today();
         LocalDate weekStart = targetDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate weekEnd = weekStart.plusDays(6);
 
@@ -244,7 +247,7 @@ public class UserActivityEventServiceImpl implements UserActivityEventService {
                 .description(description)
                 .xpDelta(xpDelta != null ? xpDelta : 0)
                 .corePointsDelta(corePointsDelta != null ? corePointsDelta : 0)
-                .occurredAt(occurredAt != null ? occurredAt : LocalDateTime.now())
+                .occurredAt(occurredAt != null ? occurredAt : calendar.now())
                 .metadataJson(toMetadataJson(metadata))
                 .build();
 

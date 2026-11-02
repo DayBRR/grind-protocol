@@ -27,7 +27,9 @@ public class DailyProgressController {
     @GetMapping("/today")
     @Operation(
             summary = "Obtener progreso diario de hoy",
-            description = "Devuelve el progreso diario del usuario autenticado para la fecha actual."
+            description = "Devuelve el progreso provisional de hoy en la zona de negocio. "
+                    + "Se recalcula con todas las tareas obligatorias activas, incluidas las creadas hoy. "
+                    + "Puede dejar de estar cualificado hasta el cierre. También consolida los días vencidos pendientes."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Progreso diario obtenido correctamente"),

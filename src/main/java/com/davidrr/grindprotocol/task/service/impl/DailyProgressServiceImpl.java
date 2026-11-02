@@ -12,6 +12,9 @@ import com.davidrr.grindprotocol.task.repository.DailyProgressRepository;
 import com.davidrr.grindprotocol.task.repository.TaskCompletionRepository;
 import com.davidrr.grindprotocol.task.repository.TaskRepository;
 import com.davidrr.grindprotocol.task.service.DailyProgressService;
+import com.davidrr.grindprotocol.progression.service.StreakService;
+import com.davidrr.grindprotocol.progression.time.DayCalendar;
+import com.davidrr.grindprotocol.common.exception.BusinessException;
 import com.davidrr.grindprotocol.user.model.User;
 import com.davidrr.grindprotocol.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -36,10 +38,24 @@ public class DailyProgressServiceImpl implements DailyProgressService {
     private final TaskCompletionRepository taskCompletionRepository;
     private final DailyProgressRepository dailyProgressRepository;
     private final DailyProgressMapper dailyProgressMapper;
+    private final StreakService streakService;
+    private final DayCalendar calendar;
 
     @Override
     @Transactional
     public DailyProgressResponse recalculateDailyProgress(Long userId, LocalDate progressDate) {
+        // Acquires the profile lock before reading or writing a daily snapshot.
+        streakService.closeElapsedDays(userId);
+        LocalDate today = calendar.today();
+        if (progressDate.isAfter(today)) {
+            throw new BusinessException(ErrorCodes.DailyProgress.DAY_IN_FUTURE, "Future progress cannot be calculated");
+        }
+        if (progressDate.isBefore(today)) {
+            return dailyProgressRepository.findByUserIdAndProgressDate(userId, progressDate)
+                    .map(dailyProgressMapper::toResponse)
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            ErrorCodes.DailyProgress.NOT_FOUND, "No historical snapshot for date: " + progressDate));
+        }
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         ErrorCodes.User.NOT_FOUND,
@@ -91,25 +107,15 @@ public class DailyProgressServiceImpl implements DailyProgressService {
         progress.setMandatoryTasksRequired(mandatoryTasksRequired);
         progress.setMandatoryTasksCompleted(mandatoryTasksCompleted);
         progress.setDayQualified(dayQualified);
-        progress.setEvaluatedAt(LocalDateTime.now());
+        progress.setEvaluatedAt(calendar.now());
 
         return dailyProgressMapper.toResponse(dailyProgressRepository.save(progress));
     }
 
     @Override
+    @Transactional
     public DailyProgressResponse getTodayProgress(Long userId) {
-        return dailyProgressRepository.findByUserIdAndProgressDate(userId, LocalDate.now())
-                .map(dailyProgressMapper::toResponse)
-                .orElse(
-                        DailyProgressResponse.builder()
-                                .progressDate(LocalDate.now())
-                                .requiredTaskCount(DEFAULT_DAILY_GOAL)
-                                .completedValidTaskCount(0)
-                                .mandatoryTasksRequired(0)
-                                .mandatoryTasksCompleted(0)
-                                .dayQualified(false)
-                                .evaluatedAt(null)
-                                .build()
-                );
+        streakService.closeElapsedDays(userId);
+        return recalculateDailyProgress(userId, calendar.today());
     }
 }

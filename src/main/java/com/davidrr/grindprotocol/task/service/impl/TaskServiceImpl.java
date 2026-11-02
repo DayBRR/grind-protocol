@@ -20,6 +20,9 @@ import com.davidrr.grindprotocol.task.repository.TaskRepository;
 import com.davidrr.grindprotocol.task.repository.TaskTemplateRepository;
 import com.davidrr.grindprotocol.task.repository.TraitRepository;
 import com.davidrr.grindprotocol.task.service.TaskService;
+import com.davidrr.grindprotocol.task.service.DailyProgressService;
+import com.davidrr.grindprotocol.progression.service.StreakService;
+import com.davidrr.grindprotocol.progression.time.DayCalendar;
 import com.davidrr.grindprotocol.user.model.User;
 import com.davidrr.grindprotocol.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -50,10 +53,14 @@ public class TaskServiceImpl implements TaskService {
     private final TraitRepository traitRepository;
     private final UserRepository userRepository;
     private final TaskMapper taskMapper;
+    private final DailyProgressService dailyProgressService;
+    private final StreakService streakService;
+    private final DayCalendar calendar;
 
     @Override
     @Transactional
     public TaskResponse createTask(Long userId, CreateTaskRequest request) {
+        streakService.closeElapsedDays(userId);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         ErrorCodes.User.NOT_FOUND,
@@ -86,12 +93,14 @@ public class TaskServiceImpl implements TaskService {
                 .build();
 
         Task savedTask = taskRepository.save(task);
+        dailyProgressService.recalculateDailyProgress(userId, calendar.today());
         return taskMapper.toResponse(savedTask);
     }
 
     @Override
     @Transactional
     public TaskResponse createTaskFromTemplate(Long userId, CreateTaskFromTemplateRequest request) {
+        streakService.closeElapsedDays(userId);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         ErrorCodes.User.NOT_FOUND,
@@ -127,6 +136,7 @@ public class TaskServiceImpl implements TaskService {
                 .build();
 
         Task savedTask = taskRepository.save(task);
+        dailyProgressService.recalculateDailyProgress(userId, calendar.today());
         return taskMapper.toResponse(savedTask);
     }
 
@@ -286,7 +296,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     private DateRange resolveDateRange(CategoryFocusPeriod period) {
-        LocalDate today = LocalDate.now();
+        LocalDate today = calendar.today();
 
         return switch (period) {
             case DAY -> new DateRange(today, today);
