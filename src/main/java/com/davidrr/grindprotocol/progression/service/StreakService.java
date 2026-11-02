@@ -4,4 +4,5 @@ import java.time.LocalDate;
 
 public interface StreakService {
     void finalizeDay(Long userId, LocalDate date);
+    void closeElapsedDays(Long userId);
 }

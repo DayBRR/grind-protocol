@@ -1,5 +1,9 @@
 package com.davidrr.grindprotocol.task.service;
 
+import com.davidrr.grindprotocol.progression.time.DayCalendar;
+import org.mockito.Spy;
+import java.time.Clock;
+
 import com.davidrr.grindprotocol.achievement.service.AchievementEvaluationService;
 import com.davidrr.grindprotocol.activity.service.UserActivityEventService;
 import com.davidrr.grindprotocol.common.exception.BusinessException;
@@ -39,6 +43,8 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class TaskCompletionServiceImplTest {
+
+    @Spy private DayCalendar calendar = new DayCalendar(Clock.systemDefaultZone());
 
     @Mock
     private TaskRepository taskRepository;
@@ -165,8 +171,8 @@ class TaskCompletionServiceImplTest {
     }
 
     @Test
-    @DisplayName("completeTask debe finalizar la racha cuando el día queda cualificado")
-    void completeTask_shouldFinalizeStreakWhenDayBecomesQualified() {
+    @DisplayName("completeTask debe mantener provisional el día cualificado sin finalizar su racha")
+    void completeTask_shouldKeepQualifiedDayProvisional() {
         CreateTaskCompletionRequest request = TestDataFactory.createTaskCompletionRequest(10L);
 
         when(taskRepository.findById(10L)).thenReturn(Optional.of(task));
@@ -185,7 +191,8 @@ class TaskCompletionServiceImplTest {
 
         taskCompletionService.completeTask(1L, request);
 
-        verify(streakService).finalizeDay(eq(1L), any(LocalDate.class));
+        verify(streakService, never()).finalizeDay(anyLong(), any(LocalDate.class));
+        verify(streakService).closeElapsedDays(1L);
         verify(questEvaluationService).evaluateQuests(1L);
         verify(achievementEvaluationService).evaluateAchievements(1L);
     }

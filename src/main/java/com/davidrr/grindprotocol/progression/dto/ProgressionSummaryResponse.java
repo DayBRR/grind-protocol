@@ -30,7 +30,7 @@ public class ProgressionSummaryResponse {
     @Schema(description = "Core Points acumulados", example = "25")
     private Long corePoints;
 
-    @Schema(description = "Racha actual del usuario", example = "4")
+    @Schema(description = "Racha de días consolidados; excluye el día abierto de hoy", example = "4")
     private Integer currentStreak;
 
     @Schema(description = "Mejor racha histórica del usuario", example = "7")

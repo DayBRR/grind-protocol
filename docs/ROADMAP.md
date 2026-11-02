@@ -381,6 +381,10 @@ La evaluación del día se realizará con un modelo híbrido.
 
 Así el usuario puede ver en todo momento cómo va, pero la decisión final sobre racha, cumplimiento y debuffs se toma al cierre del día.
 
+La implementación de cualificación provisional y consolidación de rachas se detalla
+en [DAILY_QUALIFICATION_AND_STREAKS.md](DAILY_QUALIFICATION_AND_STREAKS.md), incluyendo
+obligaciones creadas durante el día, zona de negocio y compatibilidad de API.
+
 ---
 
 ## 21. 🧾 Integridad de datos e histórico

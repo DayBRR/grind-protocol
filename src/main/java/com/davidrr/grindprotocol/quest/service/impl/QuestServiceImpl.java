@@ -1,5 +1,7 @@
 package com.davidrr.grindprotocol.quest.service.impl;
 
+import com.davidrr.grindprotocol.progression.time.DayCalendar;
+
 import com.davidrr.grindprotocol.activity.service.UserActivityEventService;
 import com.davidrr.grindprotocol.common.exception.BusinessException;
 import com.davidrr.grindprotocol.common.exception.ErrorCodes;
@@ -21,13 +23,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class QuestServiceImpl implements QuestService {
 
+    private final DayCalendar calendar;
     private final QuestRepository questRepository;
     private final UserProfileRepository userProfileRepository;
     private final UserQuestRepository userQuestRepository;
@@ -39,7 +41,7 @@ public class QuestServiceImpl implements QuestService {
     @Override
     public List<QuestResponse> getQuests(Long userId) {
 
-        LocalDate today = LocalDate.now();
+        LocalDate today = calendar.today();
 
         List<Quest> quests = questRepository.findByEnabledTrueOrderByIdAsc();
 
@@ -75,13 +77,15 @@ public class QuestServiceImpl implements QuestService {
             Long questId,
             Long userId
     ) {
+        // Sample the period after the global profile lock, including across midnight.
+        userProfileRepository.findLockedByUserId(userId);
 
         Quest quest = questRepository.findById(questId)
                 .orElseThrow(() -> new BusinessException(
                         ErrorCodes.Quest.NOT_FOUND, ErrorMessages.Quest.NOT_FOUND
                 ));
 
-        LocalDate today = LocalDate.now();
+        LocalDate today = calendar.today();
 
         LocalDate periodStart = questPeriodResolver.resolvePeriodStart(
                 quest.getFrequency(),
@@ -92,9 +96,6 @@ public class QuestServiceImpl implements QuestService {
                 quest.getFrequency(),
                 today
         );
-
-        // Global lock order: profile -> claim instance. Load balances only after locking.
-        userProfileRepository.findLockedByUserId(userId);
 
         UserQuest userQuest = userQuestRepository
                 .findLockedByUserProfileUserIdAndQuestIdAndPeriodStartAndPeriodEnd(
@@ -126,7 +127,7 @@ public class QuestServiceImpl implements QuestService {
         );
 
         userQuest.setStatus(QuestStatus.CLAIMED);
-        userQuest.setClaimedAt(LocalDateTime.now());
+        userQuest.setClaimedAt(calendar.now());
 
         UserQuest savedUserQuest = userQuestRepository.save(userQuest);
         userActivityEventService.recordQuestClaimed(savedUserQuest);

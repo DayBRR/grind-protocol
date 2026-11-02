@@ -22,3 +22,7 @@ security:
     issuer: grind-protocol-integration-test
     expiration: 900000
     secret-key: kiZBXT4bphjoTdPrxGFYSzdvYxK0yaQ8tu/RhTZ+pvo=
+# Tests invoke closure explicitly; no background closer.
+grind:
+  day-closing:
+    enabled: false

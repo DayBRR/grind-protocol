@@ -1,5 +1,9 @@
 package com.davidrr.grindprotocol.quest.service;
 
+import com.davidrr.grindprotocol.progression.time.DayCalendar;
+import org.mockito.Spy;
+import java.time.Clock;
+
 import com.davidrr.grindprotocol.activity.service.UserActivityEventService;
 import com.davidrr.grindprotocol.common.exception.BusinessException;
 import com.davidrr.grindprotocol.progression.service.ProgressionService;
@@ -33,6 +37,8 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class QuestServiceImplTest {
+
+    @Spy private DayCalendar calendar = new DayCalendar(Clock.systemDefaultZone());
 
     @Mock private QuestRepository questRepository;
     @Mock private UserQuestRepository userQuestRepository;

@@ -32,12 +32,12 @@ public class UserProfileResponse {
     @Schema(description = "Puntos de la aplicación", example = "0")
     private Long corePoints;
 
-    @Schema(description = "Racha actual", example = "0")
+    @Schema(description = "Racha de días consolidados; excluye el día abierto de hoy", example = "0")
     private Integer currentStreak;
 
     @Schema(description = "Mejor racha histórica", example = "0")
     private Integer bestStreak;
 
-    @Schema(description = "Última fecha evaluada del progreso", example = "2026-04-04", nullable = true)
+    @Schema(description = "Última fecha cerrada consolidada; las fechas anteriores no se vuelven a aplicar", example = "2026-04-04", nullable = true)
     private LocalDate lastEvaluatedDate;
 }

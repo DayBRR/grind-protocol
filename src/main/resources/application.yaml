@@ -7,6 +7,14 @@ spring:
     serialization:
       write-dates-as-timestamps: false
 
+# Set GRIND_DAY_ZONE consistently on every node before production rollout.
+# Empty preserves the previous JVM-local calendar. There is no per-user zone yet.
+grind:
+  day-zone: ${GRIND_DAY_ZONE:}
+  day-closing:
+    enabled: ${GRIND_DAY_CLOSING_ENABLED:true}
+    delay-ms: 60000
+
 security:
   cors:
     allowed-origins: "http://localhost:4200"

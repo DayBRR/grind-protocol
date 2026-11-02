@@ -38,12 +38,14 @@ public class ProgressionController {
             description = """
                     Evalúa el progreso diario del usuario autenticado para una fecha concreta y actualiza su racha.
 
-                    Si no se informa la fecha, se utiliza la fecha actual.
+                    Si no se informa la fecha, se cierran los días pendientes hasta ayer en la zona de negocio.
+                    Hoy y las fechas futuras se rechazan: el progreso de hoy es provisional.
 
                     Reglas principales:
                     - Si el día está calificado, se incrementa o inicia la racha.
                     - Si el día no está calificado, se reinicia la racha actual.
-                    - Si la fecha ya fue evaluada, no se vuelve a modificar la racha.
+                    - Se consumen snapshots históricos en orden, sin recalcular tareas actuales.
+                    - Si la fecha ya fue evaluada o es anterior a la última, no se modifica la racha.
                     """
     )
     @ApiResponses({
@@ -57,15 +59,14 @@ public class ProgressionController {
             @AuthenticationPrincipal AuthenticatedUser currentUser,
 
             @Parameter(
-                    description = "Fecha del día a finalizar. Si se omite, se usa la fecha actual.",
+                    description = "Fecha pasada hasta la que finalizar. Si se omite, se usa ayer.",
                     example = "2026-04-18"
             )
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate date
     ) {
-        LocalDate targetDate = date != null ? date : LocalDate.now();
-        streakService.finalizeDay(currentUser.getId(), targetDate);
+        streakService.finalizeDay(currentUser.getId(), date);
     }
 
     @GetMapping

@@ -6,6 +6,9 @@ import org.springframework.data.jpa.repository.Lock;
 import jakarta.persistence.LockModeType;
 
 import java.util.Optional;
+import java.util.List;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.domain.Pageable;
 
 public interface UserProfileRepository extends JpaRepository<UserProfile, Long> {
 
@@ -16,4 +19,7 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, Long> 
     Optional<UserProfile> findLockedByUserId(Long userId);
 
     boolean existsByUserId(Long userId);
+
+    @Query("select p.user.id from UserProfile p order by p.user.id")
+    List<Long> findUserIds(Pageable page);
 }
